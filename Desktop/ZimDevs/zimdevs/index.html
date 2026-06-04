@@ -1,0 +1,1976 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZimDevs — Zimbabwe-based, world-class</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg:      oklch(10% 0.018 100);
+  --surface: oklch(14% 0.02 100);
+  --fg:      oklch(97% 0.003 95);
+  --muted:   oklch(52% 0.01 100);
+  --border:  oklch(97% 0.003 95);
+  --accent:  oklch(60% 0.22 25);
+
+  --font-display: 'Times New Roman', 'Iowan Old Style', Georgia, serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'IBM Plex Mono', Menlo, monospace;
+
+  --sp-xs:  8px;
+  --sp-sm:  16px;
+  --sp-md:  32px;
+  --sp-lg:  64px;
+  --sp-xl:  clamp(80px, 10vw, 140px);
+  --sp-2xl: clamp(100px, 14vw, 200px);
+
+  --border-w: 1.5px;
+  --border-c: color-mix(in oklch, var(--border) 16%, transparent);
+  --border-strong: color-mix(in oklch, var(--border) 28%, transparent);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ─── UTILITY ─── */
+.container { max-width: 1440px; margin: 0 auto; padding: 0 var(--sp-md); }
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  padding: 18px var(--sp-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.35s, border-color 0.35s;
+  border-bottom: var(--border-w) solid transparent;
+}
+nav.scrolled {
+  background: color-mix(in oklch, var(--bg) 88%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom-color: var(--border-c);
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  text-decoration: none;
+}
+.nav-logo em { font-style: normal; color: var(--accent); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--fg); }
+.nav-links .nav-cta {
+  padding: 8px 18px;
+  border: var(--border-w) solid var(--accent);
+  color: var(--accent) !important;
+}
+.nav-links .nav-cta:hover {
+  background: var(--accent);
+  color: var(--bg) !important;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--fg);
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 99;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 8vw, 56px);
+  font-weight: 400;
+  color: var(--fg);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.mobile-menu a:hover { color: var(--accent); }
+.mobile-menu-close {
+  position: absolute;
+  top: 20px;
+  right: var(--sp-md);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color 0.2s;
+}
+.mobile-menu-close:hover { color: var(--fg); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: var(--border-w) solid;
+  cursor: pointer;
+  transition: background 0.22s, color 0.22s;
+}
+.btn-fill {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.btn-fill:hover { background: transparent; color: var(--accent); }
+.btn-ghost {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+.btn-ghost:hover { border-color: var(--fg); }
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  padding-top: 80px;
+  padding-bottom: var(--sp-xl);
+  overflow: hidden;
+}
+
+/* 3D canvas layer (behind everything) */
+#hero-3d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+#hero-3d.ready { opacity: 1; }
+
+/* Dot-grid layer */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(color-mix(in oklch, var(--border) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklch, var(--border) 4%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  pointer-events: none;
+}
+
+/* Ghost headline */
+.hero-ghost {
+  position: absolute;
+  top: -8%;
+  left: -4%;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: clamp(180px, 26vw, 400px);
+  font-weight: 400;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--border) 6%, transparent);
+  white-space: nowrap;
+  user-select: none;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Accent vertical rule */
+.hero-rule {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 32%;
+  z-index: 1;
+  width: var(--border-w);
+  background: linear-gradient(to bottom, transparent 5%, var(--accent) 40%, transparent 95%);
+  opacity: 0.22;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Floating code snippets */
+.hero-code {
+  position: absolute;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: color-mix(in oklch, var(--muted) 34%, transparent);
+  white-space: pre;
+  user-select: none;
+  will-change: transform;
+  pointer-events: none;
+}
+.hero-code-a { top: 14%; right: 7%; }
+.hero-code-b { bottom: 28%; left: 4%; }
+.hero-code-c { top: 48%; right: 14%; }
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.hero-layout {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  gap: var(--sp-lg);
+  align-items: end;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: var(--border-w);
+  background: var(--accent);
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 8vw, 128px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--sp-md);
+}
+.hero-headline em { font-style: italic; color: var(--accent); }
+
+.hero-sub {
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 1.6vw, 18px);
+  line-height: 1.65;
+  color: var(--muted);
+  margin-bottom: var(--sp-lg);
+  max-width: 400px;
+}
+
+.hero-actions { display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap; }
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--border-w);
+  background: var(--border-strong);
+  border: var(--border-w) solid var(--border-strong);
+}
+.hero-stat {
+  background: var(--bg);
+  padding: 28px var(--sp-md);
+}
+.hero-stat-n {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.hero-stat-n em { font-style: normal; color: var(--accent); }
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+}
+.hero-scroll-bar {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: bar-pulse 1.9s ease-in-out infinite;
+}
+@keyframes bar-pulse {
+  0%, 100% { opacity: 0.25; transform: scaleY(0.7); }
+  50%       { opacity: 1;    transform: scaleY(1);   }
+}
+
+/* ─── SECTION BASE ─── */
+.section {
+  padding: var(--sp-2xl) 0;
+  border-top: var(--border-w) solid var(--border-c);
+}
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: var(--sp-md);
+  border-bottom: var(--border-w) solid var(--border-c);
+  margin-bottom: var(--sp-xl);
+}
+
+/* ─── SERVICES ─── */
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: var(--border-w) solid var(--border-strong);
+}
+
+.svc {
+  position: relative;
+  padding: var(--sp-lg);
+  border-right: var(--border-w) solid var(--border-strong);
+  border-bottom: var(--border-w) solid var(--border-strong);
+  overflow: hidden;
+}
+.svc:nth-child(even)   { border-right: none; }
+.svc:nth-child(3),
+.svc:nth-child(4)      { border-bottom: none; }
+
+.svc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform-origin: bottom left;
+  transform: scaleY(0);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+.svc:hover::after { transform: scaleY(1); }
+
+.svc-inner { position: relative; z-index: 1; }
+.svc:hover .svc-inner { color: var(--bg); }
+.svc:hover .svc-slug  { color: color-mix(in oklch, var(--bg) 55%, transparent); }
+.svc:hover .svc-desc  { color: color-mix(in oklch, var(--bg) 70%, transparent); }
+.svc:hover .svc-tag   {
+  border-color: color-mix(in oklch, var(--bg) 30%, transparent);
+  color:        color-mix(in oklch, var(--bg) 60%, transparent);
+}
+
+.svc-slug {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: var(--sp-lg);
+  transition: color 0.25s;
+}
+.svc-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3vw, 46px);
+  font-weight: 400;
+  line-height: 1.02;
+  margin-bottom: var(--sp-md);
+  transition: color 0.25s;
+}
+.svc-desc {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: var(--sp-md);
+  transition: color 0.25s;
+}
+.svc-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.svc-tag {
+  padding: 4px 10px;
+  border: 1px solid color-mix(in oklch, var(--border) 18%, transparent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: border-color 0.25s, color 0.25s;
+}
+
+/* ─── PROCESS ─── */
+.process-scroll-space {
+  height: 500vh;
+  position: relative;
+}
+.process-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.process-layout {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  gap: 0;
+  width: 100%;
+  height: calc(100vh - 80px);
+  margin-top: 80px;
+}
+
+.process-lhs {
+  padding: var(--sp-md) var(--sp-xl) var(--sp-md) var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-md);
+}
+.process-section-hdr {
+  padding-bottom: var(--sp-md);
+  border-bottom: var(--border-w) solid var(--border-c);
+  margin-bottom: var(--sp-md);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.proc-nav { display: flex; flex-direction: column; gap: 0; }
+.proc-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-c);
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.4s;
+}
+.proc-nav-item.active { opacity: 1; }
+.proc-nav-n {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  min-width: 26px;
+}
+.proc-nav-label {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.proc-bars { display: flex; gap: 4px; margin-top: var(--sp-sm); }
+.proc-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--border-c);
+  position: relative;
+  overflow: hidden;
+}
+.proc-bar-fill {
+  position: absolute;
+  inset: 0 100% 0 0;
+  background: var(--accent);
+  transition: right 0.4s ease;
+}
+.proc-bar-fill.filled { right: 0; }
+
+.process-rhs {
+  border-left: var(--border-w) solid var(--border-c);
+  padding: var(--sp-md) var(--sp-md) var(--sp-md) var(--sp-xl);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.proc-steps { position: relative; width: 100%; min-height: 440px; }
+.proc-step {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.proc-step.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.proc-step-n {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 11vw, 148px);
+  font-weight: 400;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: var(--border-w) color-mix(in oklch, var(--border) 14%, transparent);
+  margin-bottom: -12px;
+}
+.proc-step-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 42px);
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: var(--sp-sm);
+}
+.proc-step-desc {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: var(--sp-md);
+  max-width: 500px;
+}
+
+.terminal {
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-c);
+  padding: var(--sp-sm) var(--sp-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.75;
+  position: relative;
+}
+.terminal-dots {
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 5px;
+  margin-bottom: 10px;
+  display: block;
+}
+.t-prompt { color: var(--accent); }
+.t-cmd    { color: var(--fg); }
+.t-out    { color: var(--muted); }
+.t-ok     { color: oklch(57% 0.16 145); }
+
+/* ─── PROCESS MOBILE ─── */
+@media (max-width: 768px) {
+  .process-scroll-space { height: auto; }
+  .process-sticky { position: static; height: auto; display: block; }
+  .process-layout { grid-template-columns: 1fr; height: auto; margin-top: 0; }
+  .process-lhs .proc-nav,
+  .proc-bars { display: none; }
+  .process-lhs .process-section-hdr { margin-bottom: var(--sp-sm); }
+  .process-rhs {
+    border-left: none;
+    border-top: var(--border-w) solid var(--border-c);
+    padding: var(--sp-md) 0 0;
+  }
+  .proc-steps { min-height: unset; position: static; }
+  .proc-step {
+    position: static;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    margin-bottom: var(--sp-xl);
+  }
+  .proc-step:last-child { margin-bottom: 0; }
+}
+
+/* ─── TECH STACK ─── */
+.ticker-outer {
+  overflow: hidden;
+  border-top: var(--border-w) solid var(--border-c);
+  border-bottom: var(--border-w) solid var(--border-c);
+  padding: 18px 0;
+  margin-bottom: var(--sp-xl);
+  cursor: default;
+}
+.ticker-track {
+  display: flex;
+  gap: 44px;
+  width: max-content;
+  animation: scroll-ticker 32s linear infinite;
+}
+.ticker-outer:hover .ticker-track { animation-play-state: paused; }
+
+.t-item {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 30px);
+  font-weight: 400;
+  white-space: nowrap;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.t-item:hover { color: var(--fg); }
+.t-sep { color: var(--accent); align-self: center; font-size: 14px; }
+
+@keyframes scroll-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: var(--border-w) solid var(--border-strong);
+}
+.stack-cat {
+  padding: var(--sp-md);
+  border-right: var(--border-w) solid var(--border-strong);
+  border-bottom: var(--border-w) solid var(--border-strong);
+}
+.stack-cat:nth-child(4n)        { border-right: none; }
+.stack-cat:nth-last-child(-n+4) { border-bottom: none; }
+
+.stack-cat-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 10px;
+}
+.stack-cat-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: var(--sp-md);
+}
+.stack-items { display: flex; flex-direction: column; gap: 9px; }
+.stack-item {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.stack-item::before { content: '→'; color: var(--accent); font-size: 10px; }
+
+/* ─── CONTACT ─── */
+.contact {
+  background: var(--fg);
+  color: var(--bg);
+  border-top: var(--border-w) solid var(--fg);
+  padding: var(--sp-2xl) 0;
+}
+.contact-layout {
+  display: grid;
+  grid-template-columns: 45% 1fr;
+  gap: var(--sp-xl);
+  align-items: start;
+}
+.contact-headline {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 106px);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--sp-md);
+}
+.contact-headline em { font-style: italic; color: var(--accent); }
+.contact-sub {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: oklch(38% 0.015 100);
+  margin-bottom: var(--sp-xl);
+}
+
+.contact-links { border-top: var(--border-w) solid oklch(22% 0.018 100); }
+.contact-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  border-bottom: var(--border-w) solid oklch(22% 0.018 100);
+  text-decoration: none;
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.contact-link:hover { color: var(--accent); }
+.cl-arrow { font-size: 16px; }
+
+.contact-form { display: flex; flex-direction: column; gap: var(--sp-sm); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-sm); }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(42% 0.015 100);
+}
+.field input,
+.field select,
+.field textarea {
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-w) solid oklch(28% 0.015 100);
+  padding: 9px 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+.field input::placeholder,
+.field textarea::placeholder { color: oklch(48% 0.01 100); }
+.field input:focus,
+.field select:focus,
+.field textarea:focus { border-bottom-color: var(--accent); }
+.field textarea { resize: vertical; min-height: 76px; }
+.field select { cursor: pointer; color: oklch(48% 0.01 100); }
+.field select option { background: oklch(95% 0.002 95); color: oklch(15% 0.018 100); }
+
+.form-submit {
+  margin-top: 4px;
+  align-self: flex-start;
+  padding: 13px 28px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: var(--border-w) solid var(--bg);
+  cursor: pointer;
+  transition: background 0.22s, border-color 0.22s, color 0.22s;
+}
+.form-submit:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: oklch(10% 0.018 100);
+}
+.form-success {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: var(--sp-sm);
+}
+.form-error {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(55% 0.2 25);
+  margin-top: var(--sp-sm);
+}
+.form-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--fg);
+  color: var(--bg);
+  border-top: var(--border-w) solid oklch(20% 0.018 100);
+  padding: var(--sp-md) 0;
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--bg);
+  text-decoration: none;
+}
+.footer-logo em { font-style: normal; color: var(--accent); }
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: oklch(44% 0.01 100);
+  text-transform: uppercase;
+}
+
+/* ─── GSAP initial states (set via JS, these are fallbacks) ─── */
+.hero-eyebrow,
+.hero-headline,
+.hero-sub,
+.hero-actions .btn,
+.hero-stat {
+  will-change: transform, opacity;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1200px) {
+  .stack-grid { grid-template-columns: 1fr 1fr; }
+  .stack-cat:nth-child(4n)        { border-right: var(--border-w) solid var(--border-strong); }
+  .stack-cat:nth-child(2n)        { border-right: none; }
+  .stack-cat:nth-last-child(-n+4) { border-bottom: var(--border-w) solid var(--border-strong); }
+  .stack-cat:nth-last-child(-n+2) { border-bottom: none; }
+}
+
+@media (max-width: 1024px) {
+  .hero-layout    { grid-template-columns: 1fr; }
+  .hero-stats     { max-width: 460px; }
+  .contact-layout { grid-template-columns: 1fr; }
+  .process-layout { grid-template-columns: 1fr; height: auto; margin-top: 0; }
+  .process-lhs    { padding: var(--sp-md) 0 0; }
+  .process-rhs    { border-left: none; border-top: var(--border-w) solid var(--border-c); padding: var(--sp-md) 0 0; }
+}
+
+@media (max-width: 768px) {
+  nav .nav-links { display: none; }
+  .hamburger     { display: flex; }
+
+  .services-grid { grid-template-columns: 1fr; }
+  .svc           { border-right: none !important; }
+  .svc:last-child { border-bottom: none; }
+  .svc:nth-child(3) { border-bottom: var(--border-w) solid var(--border-strong); }
+
+  .hero-code { display: none; }
+  #hero-3d   { display: none; }   /* skip WebGL on mobile for perf */
+
+  .form-row { grid-template-columns: 1fr; }
+
+  .footer-inner { flex-direction: column; gap: var(--sp-sm); text-align: center; }
+}
+
+@media (max-width: 430px) {
+  :root { --sp-md: 20px; }
+  .hero-stats { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 360px) {
+  .hero-headline { font-size: 44px; }
+  .hero-stats    { grid-template-columns: 1fr; }
+}
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  #hero-3d              { display: none; }
+  .hero-scroll-bar      { animation: none; opacity: 0.5; }
+  .ticker-track         { animation: none; }
+  .proc-step            { transition: none; }
+  .proc-bar-fill        { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav id="nav">
+  <a href="#" class="nav-logo">ZIM<em>.</em>DEVS</a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#contact" class="nav-cta">Start a Project</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true">
+  <button class="mobile-menu-close" id="mobileMenuClose">✕ Close</button>
+  <a href="#services"  onclick="closeMobileMenu()">Services</a>
+  <a href="#process"   onclick="closeMobileMenu()">Process</a>
+  <a href="#stack"     onclick="closeMobileMenu()">Stack</a>
+  <a href="#contact"   onclick="closeMobileMenu()">Contact</a>
+</div>
+
+<!-- ─── HERO ─── -->
+<section class="hero" id="hero">
+
+  <!-- 3D canvas: rendered first so it sits at the very bottom of the stacking context -->
+  <canvas id="hero-3d" aria-hidden="true"></canvas>
+
+  <div class="hero-grid"></div>
+  <div class="hero-ghost"    id="parallaxBg">BUILD</div>
+  <div class="hero-rule"     id="parallaxRule"></div>
+  <div class="hero-code hero-code-a" id="parallaxCodeA">const pipeline =
+  await orchestrate([
+    ingest, transform,
+    validate, dispatch
+  ]);</div>
+  <div class="hero-code hero-code-b" id="parallaxCodeB">POST /api/v2/run
+→ 200 OK  138ms
+→ nodes: 14 triggered
+→ status: complete</div>
+  <div class="hero-code hero-code-c" id="parallaxCodeC">if (build.ready) {
+  deploy(prod);
+  // zero downtime
+}</div>
+
+  <div class="hero-content">
+    <div class="container">
+      <div class="hero-layout">
+        <div>
+          <div class="hero-eyebrow">
+            <span class="label">Zimbabwe-based, world-class</span>
+          </div>
+          <h1 class="hero-headline">
+            We build<br>
+            <em>systems</em><br>
+            that run<br>
+            themselves.
+          </h1>
+          <p class="hero-sub">
+            Custom software. AI-native automations.<br>
+            Engineered from first principles.<br>
+            Delivered on schedule.
+          </p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-fill">Start a Project →</a>
+            <a href="#services" class="btn btn-ghost">See Our Work ↓</a>
+          </div>
+        </div>
+        <div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-n">48<em>h</em></div>
+              <span class="label">avg. time to first deploy</span>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-n">3<em>×</em></div>
+              <span class="label">faster than in-house builds</span>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-n">100<em>%</em></div>
+              <span class="label">projects shipped on deadline</span>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-n">0<em>.</em></div>
+              <span class="label">vendor lock-in. ever.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="hero-scroll-bar"></div>
+    <span class="label" style="font-size:9px">SCROLL</span>
+  </div>
+</section>
+
+<!-- ─── SERVICES ─── -->
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-header" id="svc-header">
+      <span class="section-num">01 — SERVICES</span>
+      <span class="label">What we do</span>
+    </div>
+    <div class="services-grid">
+
+      <div class="svc">
+        <div class="svc-inner">
+          <span class="svc-slug">A — WEB DEVELOPMENT</span>
+          <h3 class="svc-title">Custom<br>Web Dev</h3>
+          <p class="svc-desc">Full-stack applications engineered from first principles. No templates, no shortcuts. Every architecture decision is made for your specific constraints and scale targets — not a copy-paste of the last project.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">Next.js</span>
+            <span class="svc-tag">React</span>
+            <span class="svc-tag">Node.js</span>
+            <span class="svc-tag">PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-inner">
+          <span class="svc-slug">B — AI INTEGRATIONS</span>
+          <h3 class="svc-title">AI<br>Integrations</h3>
+          <p class="svc-desc">Embed intelligence into your existing stack. LLM pipelines, vector search, RAG architectures, and autonomous agents that operate within your business workflows without breaking everything else.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">OpenAI</span>
+            <span class="svc-tag">Claude</span>
+            <span class="svc-tag">LangChain</span>
+            <span class="svc-tag">Pinecone</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-inner">
+          <span class="svc-slug">C — API &amp; BACKEND</span>
+          <h3 class="svc-title">API Design<br>&amp; Backend</h3>
+          <p class="svc-desc">RESTful and GraphQL APIs built for long-term reliability. Microservice architectures that decouple gracefully. Event-driven systems that scale from 100 to 10M requests without requiring a rewrite.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">REST</span>
+            <span class="svc-tag">GraphQL</span>
+            <span class="svc-tag">Redis</span>
+            <span class="svc-tag">Kafka</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-inner">
+          <span class="svc-slug">D — AUTOMATION</span>
+          <h3 class="svc-title">Workflow<br>Automation</h3>
+          <p class="svc-desc">Map, redesign, and automate your operational workflows. From data pipelines and CRM sync to multi-step approvals and real-time triggers — we make your tools talk to each other so your team doesn't have to.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">n8n</span>
+            <span class="svc-tag">Make</span>
+            <span class="svc-tag">Zapier</span>
+            <span class="svc-tag">Custom</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROCESS ─── -->
+<section class="section process-outer" id="process">
+  <div class="process-scroll-space">
+    <div class="process-sticky">
+      <div class="container" style="width:100%">
+        <div class="process-layout">
+
+          <div class="process-lhs">
+            <div class="process-section-hdr">
+              <span class="section-num">02 — HOW WE WORK</span>
+              <span class="label">Process</span>
+            </div>
+            <nav class="proc-nav" aria-label="Process steps">
+              <div class="proc-nav-item active" data-step="0" tabindex="0">
+                <span class="proc-nav-n">01</span>
+                <span class="proc-nav-label">Discovery</span>
+              </div>
+              <div class="proc-nav-item" data-step="1" tabindex="0">
+                <span class="proc-nav-n">02</span>
+                <span class="proc-nav-label">Architecture</span>
+              </div>
+              <div class="proc-nav-item" data-step="2" tabindex="0">
+                <span class="proc-nav-n">03</span>
+                <span class="proc-nav-label">Build &amp; Iterate</span>
+              </div>
+              <div class="proc-nav-item" data-step="3" tabindex="0">
+                <span class="proc-nav-n">04</span>
+                <span class="proc-nav-label">Ship &amp; Maintain</span>
+              </div>
+            </nav>
+            <div class="proc-bars">
+              <div class="proc-bar"><div class="proc-bar-fill" id="pb0"></div></div>
+              <div class="proc-bar"><div class="proc-bar-fill" id="pb1"></div></div>
+              <div class="proc-bar"><div class="proc-bar-fill" id="pb2"></div></div>
+              <div class="proc-bar"><div class="proc-bar-fill" id="pb3"></div></div>
+            </div>
+          </div>
+
+          <div class="process-rhs">
+            <div class="proc-steps" id="procSteps">
+
+              <div class="proc-step active" data-step="0">
+                <div class="proc-step-n">01</div>
+                <h3 class="proc-step-title">Discovery &amp;<br>Requirements</h3>
+                <p class="proc-step-desc">
+                  We map your current state, constraints, and goals in a single structured sprint.
+                  No bloated requirements docs — just a clear technical brief and delivery scope,
+                  signed off before a line of code is written.
+                </p>
+                <div class="terminal">
+                  <span class="terminal-dots">● ● ●</span>
+                  <span class="t-prompt">$ </span><span class="t-cmd">zimdevs init --project</span><br>
+                  <span class="t-out">→ Scanning existing systems...</span><br>
+                  <span class="t-out">→ Mapping integration points (14 found)</span><br>
+                  <span class="t-ok">✓  brief.md generated — ready for review</span>
+                </div>
+              </div>
+
+              <div class="proc-step" data-step="1">
+                <div class="proc-step-n">02</div>
+                <h3 class="proc-step-title">System<br>Architecture</h3>
+                <p class="proc-step-desc">
+                  We design before we build. Every system gets a proper architecture document:
+                  data models, service boundaries, API contracts, infrastructure plans.
+                  You review and sign off — no surprises mid-sprint.
+                </p>
+                <div class="terminal">
+                  <span class="terminal-dots">● ● ●</span>
+                  <span class="t-prompt">$ </span><span class="t-cmd">zimdevs arch --diagram services</span><br>
+                  <span class="t-out">→ Resolving service graph...</span><br>
+                  <span class="t-out">→ API contracts: 22 endpoints defined</span><br>
+                  <span class="t-ok">✓  architecture locked at v1.0.0</span>
+                </div>
+              </div>
+
+              <div class="proc-step" data-step="2">
+                <div class="proc-step-n">03</div>
+                <h3 class="proc-step-title">Build &amp;<br>Iterate</h3>
+                <p class="proc-step-desc">
+                  Two-week sprints. A working deploy at the end of every one.
+                  You see real, testable software — not mockups.
+                  Feedback happens in the product, not in endless status calls.
+                </p>
+                <div class="terminal">
+                  <span class="terminal-dots">● ● ●</span>
+                  <span class="t-prompt">$ </span><span class="t-cmd">git push origin main</span><br>
+                  <span class="t-out">→ CI: 312 tests passing (0 failures)</span><br>
+                  <span class="t-out">→ Deploying to staging...</span><br>
+                  <span class="t-ok">✓  staging.build/client/sprint-4 — live</span>
+                </div>
+              </div>
+
+              <div class="proc-step" data-step="3">
+                <div class="proc-step-n">04</div>
+                <h3 class="proc-step-title">Ship &amp;<br>Maintain</h3>
+                <p class="proc-step-desc">
+                  Zero-downtime production deploy. Observability configured from day one.
+                  We hand over full ownership — or stay on retainer for ongoing development
+                  and automation runs. Your call.
+                </p>
+                <div class="terminal">
+                  <span class="terminal-dots">● ● ●</span>
+                  <span class="t-prompt">$ </span><span class="t-cmd">zimdevs deploy --prod --zero-downtime</span><br>
+                  <span class="t-out">→ Health checks: passing</span><br>
+                  <span class="t-out">→ Cutover: 0.0s downtime recorded</span><br>
+                  <span class="t-ok">✓  production live at your-domain.com</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TECH STACK ─── -->
+<section class="section" id="stack">
+  <div class="container">
+    <div class="section-header" id="stack-header">
+      <span class="section-num">03 — TOOLS &amp; STACK</span>
+      <span class="label">Technology</span>
+    </div>
+  </div>
+
+  <div class="ticker-outer" id="ticker">
+    <div class="ticker-track">
+      <span class="t-item">React</span><span class="t-sep">×</span>
+      <span class="t-item">Next.js</span><span class="t-sep">×</span>
+      <span class="t-item">Node.js</span><span class="t-sep">×</span>
+      <span class="t-item">Python</span><span class="t-sep">×</span>
+      <span class="t-item">PostgreSQL</span><span class="t-sep">×</span>
+      <span class="t-item">Redis</span><span class="t-sep">×</span>
+      <span class="t-item">OpenAI</span><span class="t-sep">×</span>
+      <span class="t-item">Claude API</span><span class="t-sep">×</span>
+      <span class="t-item">Vercel</span><span class="t-sep">×</span>
+      <span class="t-item">Docker</span><span class="t-sep">×</span>
+      <span class="t-item">Kubernetes</span><span class="t-sep">×</span>
+      <span class="t-item">Terraform</span><span class="t-sep">×</span>
+      <span class="t-item">n8n</span><span class="t-sep">×</span>
+      <span class="t-item">GraphQL</span><span class="t-sep">×</span>
+      <span class="t-item">Kafka</span><span class="t-sep">×</span>
+      <span class="t-item">React</span><span class="t-sep">×</span>
+      <span class="t-item">Next.js</span><span class="t-sep">×</span>
+      <span class="t-item">Node.js</span><span class="t-sep">×</span>
+      <span class="t-item">Python</span><span class="t-sep">×</span>
+      <span class="t-item">PostgreSQL</span><span class="t-sep">×</span>
+      <span class="t-item">Redis</span><span class="t-sep">×</span>
+      <span class="t-item">OpenAI</span><span class="t-sep">×</span>
+      <span class="t-item">Claude API</span><span class="t-sep">×</span>
+      <span class="t-item">Vercel</span><span class="t-sep">×</span>
+      <span class="t-item">Docker</span><span class="t-sep">×</span>
+      <span class="t-item">Kubernetes</span><span class="t-sep">×</span>
+      <span class="t-item">Terraform</span><span class="t-sep">×</span>
+      <span class="t-item">n8n</span><span class="t-sep">×</span>
+      <span class="t-item">GraphQL</span><span class="t-sep">×</span>
+      <span class="t-item">Kafka</span><span class="t-sep">×</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stack-grid" id="stack-grid">
+      <div class="stack-cat">
+        <span class="stack-cat-tag">Frontend</span>
+        <div class="stack-cat-title">UI / Client</div>
+        <div class="stack-items">
+          <span class="stack-item">React &amp; Next.js</span>
+          <span class="stack-item">TypeScript</span>
+          <span class="stack-item">Tailwind CSS</span>
+          <span class="stack-item">Framer Motion</span>
+          <span class="stack-item">Three.js / WebGL</span>
+        </div>
+      </div>
+      <div class="stack-cat">
+        <span class="stack-cat-tag">Backend</span>
+        <div class="stack-cat-title">API / Server</div>
+        <div class="stack-items">
+          <span class="stack-item">Node.js + Express</span>
+          <span class="stack-item">Python / FastAPI</span>
+          <span class="stack-item">PostgreSQL</span>
+          <span class="stack-item">Redis</span>
+          <span class="stack-item">GraphQL + REST</span>
+        </div>
+      </div>
+      <div class="stack-cat">
+        <span class="stack-cat-tag">AI / ML</span>
+        <div class="stack-cat-title">Intelligence</div>
+        <div class="stack-items">
+          <span class="stack-item">OpenAI GPT-4o</span>
+          <span class="stack-item">Anthropic Claude</span>
+          <span class="stack-item">LangChain / LCEL</span>
+          <span class="stack-item">Pinecone / pgvector</span>
+          <span class="stack-item">Hugging Face</span>
+        </div>
+      </div>
+      <div class="stack-cat">
+        <span class="stack-cat-tag">Infra / DevOps</span>
+        <div class="stack-cat-title">Infrastructure</div>
+        <div class="stack-items">
+          <span class="stack-item">Docker + Kubernetes</span>
+          <span class="stack-item">Terraform / IaC</span>
+          <span class="stack-item">AWS / GCP / Vercel</span>
+          <span class="stack-item">GitHub Actions</span>
+          <span class="stack-item">Datadog / Sentry</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ─── -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-layout">
+      <div>
+        <span class="section-num" style="display:block; margin-bottom:var(--sp-md);">04 — LET'S BUILD</span>
+        <h2 class="contact-headline">
+          Ready<br>to <em>ship</em>?
+        </h2>
+        <p class="contact-sub">
+          Tell us what you're building.<br>
+          We'll tell you exactly how fast<br>
+          we can deliver it.
+        </p>
+        <div class="contact-links">
+          <a href="https://mail.google.com/mail/?view=cm&to=erickmureruswa@gmail.com&su=Project+Enquiry+from+ZimDevs" target="_blank" rel="noopener" class="contact-link">
+            <span>erickmureruswa@gmail.com</span>
+            <span class="cl-arrow">↗</span>
+          </a>
+          <a href="https://wa.me/263771465624" target="_blank" rel="noopener" class="contact-link">
+            <span>WhatsApp: +263 77 146 5624</span>
+            <span class="cl-arrow">↗</span>
+          </a>
+          <a href="https://instagram.com/zim_young_devs" target="_blank" rel="noopener" class="contact-link">
+            <span>Instagram: @zim_young_devs</span>
+            <span class="cl-arrow">↗</span>
+          </a>
+          <a href="https://mail.google.com/mail/?view=cm&to=erickmureruswa@gmail.com&su=Book+a+30-min+call+with+ZimDevs" target="_blank" rel="noopener" class="contact-link">
+            <span>Book a 30-min call</span>
+            <span class="cl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <form class="contact-form" id="contactForm" novalidate>
+          <div class="form-row">
+            <div class="field">
+              <label for="fname">First name</label>
+              <input type="text" id="fname" name="fname" placeholder="Alex" autocomplete="given-name">
+            </div>
+            <div class="field">
+              <label for="lname">Last name</label>
+              <input type="text" id="lname" name="lname" placeholder="Chen" autocomplete="family-name">
+            </div>
+          </div>
+          <div class="field">
+            <label for="email">Work email *</label>
+            <input type="email" id="email" name="email" placeholder="alex@company.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="service">What do you need?</label>
+            <select id="service" name="service">
+              <option value="" disabled selected>Select a service</option>
+              <option>Custom web development</option>
+              <option>AI integrations</option>
+              <option>API design &amp; backend</option>
+              <option>Workflow automation</option>
+              <option>Full-stack + automation</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="brief">Project brief</label>
+            <textarea id="brief" name="brief" placeholder="Describe what you're building, your timeline, and any technical constraints…"></textarea>
+          </div>
+          <button type="submit" class="form-submit" id="formSubmit">Send Brief →</button>
+          <p class="form-success" id="formSuccess">
+            ✓ BRIEF RECEIVED — WE'LL RESPOND WITHIN 24 HOURS
+          </p>
+          <p class="form-error" id="formError">
+            ✕ SOMETHING WENT WRONG — PLEASE TRY AGAIN OR EMAIL DIRECTLY
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="#" class="footer-logo">ZIM<em>.</em>DEVS</a>
+      <span class="footer-copy">© 2025 ZimDevs. All systems operational.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── LIBRARIES ─── -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+'use strict';
+
+// ─── REGISTER GSAP PLUGIN ────────────────────────────────────────────────────
+if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+// ─── THREE.JS 3D HERO BACKGROUND ─────────────────────────────────────────────
+(function initThreeBackground() {
+  var canvas = document.getElementById('hero-3d');
+  if (!canvas || typeof THREE === 'undefined') return;
+  if (window.innerWidth < 768) return; // skip on small screens
+
+  // Resolve accent colour from CSS so it matches the design token exactly
+  var probe = document.createElement('div');
+  probe.style.cssText = 'color:oklch(60% 0.22 25);position:absolute;visibility:hidden';
+  document.body.appendChild(probe);
+  var computedColour = getComputedStyle(probe).color;
+  document.body.removeChild(probe);
+  var rgbMatch = computedColour.match(/[\d.]+/g) || ['232', '90', '40'];
+  var accentR = parseInt(rgbMatch[0], 10) / 255;
+  var accentG = parseInt(rgbMatch[1], 10) / 255;
+  var accentB = parseInt(rgbMatch[2], 10) / 255;
+  var ACCENT_HEX = (Math.round(accentR * 255) << 16) | (Math.round(accentG * 255) << 8) | Math.round(accentB * 255);
+
+  // Renderer
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  camera.position.set(0, 0, 26);
+
+  // ── Node field ──────────────────────────────────────────────────────────────
+  var N = 240;
+  var BOUND_X = 26, BOUND_Y = 16, BOUND_Z = 18;
+  var CONNECT_DIST = 6.2;
+  var CONNECT_DIST_SQ = CONNECT_DIST * CONNECT_DIST;
+
+  var nodePos  = new Float32Array(N * 3);
+  var nodeVel  = new Float32Array(N * 3);
+  var nodePhase = new Float32Array(N);
+
+  for (var i = 0; i < N; i++) {
+    nodePos[i*3]     = (Math.random() - 0.5) * BOUND_X * 2;
+    nodePos[i*3 + 1] = (Math.random() - 0.5) * BOUND_Y * 2;
+    nodePos[i*3 + 2] = (Math.random() - 0.5) * BOUND_Z * 2;
+    nodeVel[i*3]     = (Math.random() - 0.5) * 0.0045;
+    nodeVel[i*3 + 1] = (Math.random() - 0.5) * 0.003;
+    nodeVel[i*3 + 2] = (Math.random() - 0.5) * 0.002;
+    nodePhase[i]     = Math.random() * Math.PI * 2;
+  }
+
+  // Main (white/muted) points
+  var pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(nodePos.slice(), 3));
+  var pMat = new THREE.PointsMaterial({
+    size: 0.075,
+    color: 0xf0f0ee,
+    transparent: true,
+    opacity: 0.42,
+    sizeAttenuation: true,
+    depthWrite: false,
+  });
+  var mainPoints = new THREE.Points(pGeo, pMat);
+  scene.add(mainPoints);
+
+  // Accent (orange) points — a random 18% subset of the same nodes
+  var accentIdx = [];
+  for (var j = 0; j < N; j++) {
+    if (Math.random() < 0.18) accentIdx.push(j);
+  }
+  var aLen = accentIdx.length;
+  var aPosBuf = new Float32Array(aLen * 3);
+  for (var k = 0; k < aLen; k++) {
+    var si = accentIdx[k];
+    aPosBuf[k*3]     = nodePos[si*3];
+    aPosBuf[k*3 + 1] = nodePos[si*3 + 1];
+    aPosBuf[k*3 + 2] = nodePos[si*3 + 2];
+  }
+  var aGeo = new THREE.BufferGeometry();
+  aGeo.setAttribute('position', new THREE.BufferAttribute(aPosBuf, 3));
+  var aMat = new THREE.PointsMaterial({
+    size: 0.16,
+    color: ACCENT_HEX,
+    transparent: true,
+    opacity: 0.88,
+    sizeAttenuation: true,
+    depthWrite: false,
+  });
+  scene.add(new THREE.Points(aGeo, aMat));
+
+  // Line segments connecting nearby nodes
+  var MAX_SEGS = 700;
+  var linePosArr = new Float32Array(MAX_SEGS * 6);
+  var lineColArr = new Float32Array(MAX_SEGS * 6);
+  var lGeo = new THREE.BufferGeometry();
+  lGeo.setAttribute('position', new THREE.BufferAttribute(linePosArr, 3));
+  lGeo.setAttribute('color',    new THREE.BufferAttribute(lineColArr, 3));
+  lGeo.setDrawRange(0, 0);
+  var lMat = new THREE.LineBasicMaterial({
+    transparent: true,
+    opacity: 0.22,
+    vertexColors: true,
+    depthWrite: false,
+  });
+  var linesMesh = new THREE.LineSegments(lGeo, lMat);
+  scene.add(linesMesh);
+
+  // ── Rebuild lines (every 3 frames to stay cheap) ────────────────────────────
+  var lFrame = 0;
+  function rebuildLines(p) {
+    lFrame++;
+    if (lFrame % 3 !== 0) return;
+
+    var seg = 0;
+    for (var a = 0; a < N && seg < MAX_SEGS; a++) {
+      for (var b = a + 1; b < N && seg < MAX_SEGS; b++) {
+        var dx = p[a*3]     - p[b*3];
+        var dy = p[a*3 + 1] - p[b*3 + 1];
+        var dz = p[a*3 + 2] - p[b*3 + 2];
+        var dSq = dx*dx + dy*dy + dz*dz;
+
+        if (dSq < CONNECT_DIST_SQ) {
+          var alpha = (1.0 - dSq / CONNECT_DIST_SQ) * 0.85;
+          var isAcc = (Math.random() < 0.1);
+          var cr = isAcc ? accentR * alpha : 0.93 * alpha;
+          var cg = isAcc ? accentG * alpha : 0.93 * alpha;
+          var cb = isAcc ? accentB * alpha : 0.93 * alpha;
+
+          var base = seg * 6;
+          linePosArr[base]     = p[a*3];     linePosArr[base + 1] = p[a*3 + 1]; linePosArr[base + 2] = p[a*3 + 2];
+          linePosArr[base + 3] = p[b*3];     linePosArr[base + 4] = p[b*3 + 1]; linePosArr[base + 5] = p[b*3 + 2];
+          lineColArr[base]     = cr; lineColArr[base + 1] = cg; lineColArr[base + 2] = cb;
+          lineColArr[base + 3] = cr; lineColArr[base + 4] = cg; lineColArr[base + 5] = cb;
+          seg++;
+        }
+      }
+    }
+
+    lGeo.setDrawRange(0, seg * 2);
+    lGeo.attributes.position.needsUpdate = true;
+    lGeo.attributes.color.needsUpdate    = true;
+  }
+
+  // ── Camera state ─────────────────────────────────────────────────────────────
+  var mouseTargetX = 0, mouseTargetY = 0;
+  var camTargetZ   = 26;
+  var heroEl = document.getElementById('hero');
+
+  window.addEventListener('mousemove', function(e) {
+    mouseTargetX = ((e.clientX / window.innerWidth)  - 0.5) * 6;
+    mouseTargetY = ((e.clientY / window.innerHeight) - 0.5) * -3.5;
+  }, { passive: true });
+
+  function updateCamFromScroll() {
+    var heroH = heroEl.offsetHeight;
+    var t = Math.min(window.scrollY / heroH, 1.0);
+    // Fly forward: z goes from 26 → 14 as user scrolls through the hero
+    camTargetZ = 26 - t * 12;
+  }
+
+  window.addEventListener('scroll', updateCamFromScroll, { passive: true });
+
+  // ── Resize ───────────────────────────────────────────────────────────────────
+  function onResize() {
+    var w = canvas.clientWidth;
+    var h = canvas.clientHeight;
+    if (w === 0 || h === 0) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', onResize);
+  onResize();
+
+  // ── Render loop ──────────────────────────────────────────────────────────────
+  var lastTs = 0;
+
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    var dt = Math.min((ts - lastTs) / 1000, 0.05);
+    lastTs = ts;
+
+    var mainBuf = pGeo.attributes.position.array;
+    var accBuf  = aGeo.attributes.position.array;
+
+    // Drift nodes
+    for (var n = 0; n < N; n++) {
+      var nx = n * 3, ny = n * 3 + 1, nz = n * 3 + 2;
+
+      mainBuf[nx] += nodeVel[nx];
+      mainBuf[ny] += nodeVel[ny] + Math.sin(ts * 0.00028 + nodePhase[n]) * 0.0014;
+      mainBuf[nz] += nodeVel[nz];
+
+      // Wrap at bounds
+      if (mainBuf[nx] >  BOUND_X) mainBuf[nx] = -BOUND_X;
+      if (mainBuf[nx] < -BOUND_X) mainBuf[nx] =  BOUND_X;
+      if (mainBuf[ny] >  BOUND_Y) mainBuf[ny] = -BOUND_Y;
+      if (mainBuf[ny] < -BOUND_Y) mainBuf[ny] =  BOUND_Y;
+      if (mainBuf[nz] >  BOUND_Z) mainBuf[nz] = -BOUND_Z;
+      if (mainBuf[nz] < -BOUND_Z) mainBuf[nz] =  BOUND_Z;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
+    // Sync accent subset
+    for (var ai = 0; ai < aLen; ai++) {
+      var src = accentIdx[ai];
+      accBuf[ai*3]     = mainBuf[src*3];
+      accBuf[ai*3 + 1] = mainBuf[src*3 + 1];
+      accBuf[ai*3 + 2] = mainBuf[src*3 + 2];
+    }
+    aGeo.attributes.position.needsUpdate = true;
+
+    // Rebuild connecting lines
+    rebuildLines(mainBuf);
+
+    // Smooth camera follow (exponential lerp)
+    camera.position.x += (mouseTargetX - camera.position.x) * 0.045;
+    camera.position.y += (mouseTargetY - camera.position.y) * 0.045;
+    camera.position.z += (camTargetZ   - camera.position.z) * 0.055;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+
+  requestAnimationFrame(frame);
+
+  // Fade the canvas in after the first frame has rendered
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      canvas.classList.add('ready');
+    });
+  });
+})();
+
+// ─── PARALLAX (hero layers) ──────────────────────────────────────────────────
+var pBg    = document.getElementById('parallaxBg');
+var pRule  = document.getElementById('parallaxRule');
+var pCodeA = document.getElementById('parallaxCodeA');
+var pCodeB = document.getElementById('parallaxCodeB');
+var pCodeC = document.getElementById('parallaxCodeC');
+var heroEl = document.getElementById('hero');
+
+function rafParallax() {
+  var s = window.scrollY;
+  var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+  // Only run within 1.6× hero height so we stop computing off-screen
+  if (s < heroH * 1.6) {
+    if (pBg)    pBg.style.transform    = 'translateY(' + (s * 0.18) + 'px)';
+    if (pRule)  pRule.style.transform  = 'translateY(' + (s * 0.08) + 'px)';
+    if (pCodeA) pCodeA.style.transform = 'translateY(' + (s * 0.38) + 'px)';
+    if (pCodeB) pCodeB.style.transform = 'translateY(' + (s * 0.28) + 'px)';
+    if (pCodeC) pCodeC.style.transform = 'translateY(' + (s * 0.46) + 'px)';
+  }
+}
+
+var parallaxTick = false;
+window.addEventListener('scroll', function() {
+  if (!parallaxTick) {
+    requestAnimationFrame(function() {
+      rafParallax();
+      parallaxTick = false;
+    });
+    parallaxTick = true;
+  }
+}, { passive: true });
+
+// ─── NAV SCROLL STATE ────────────────────────────────────────────────────────
+var navEl = document.getElementById('nav');
+window.addEventListener('scroll', function() {
+  navEl.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+// ─── MOBILE MENU ─────────────────────────────────────────────────────────────
+var hamburger   = document.getElementById('hamburger');
+var mobileMenu  = document.getElementById('mobileMenu');
+var mobileClose = document.getElementById('mobileMenuClose');
+
+hamburger.addEventListener('click', function() { mobileMenu.classList.add('open'); });
+mobileClose.addEventListener('click', closeMobileMenu);
+mobileMenu.addEventListener('click', function(e) {
+  if (e.target === mobileMenu) closeMobileMenu();
+});
+
+function closeMobileMenu() { mobileMenu.classList.remove('open'); }
+
+// ─── GSAP SCROLL & ENTRANCE ANIMATIONS ───────────────────────────────────────
+(function initGSAP() {
+  if (typeof gsap === 'undefined') return;
+
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducedMotion) return; // respect system preference
+
+  // ── Hero entrance sequence ────────────────────────────────────────────────
+  // Set initial invisible states before animating in
+  gsap.set('.hero-eyebrow',        { opacity: 0, y: 28 });
+  gsap.set('.hero-headline',       { opacity: 0, y: 64 });
+  gsap.set('.hero-sub',            { opacity: 0, y: 32 });
+  gsap.set('.hero-actions .btn',   { opacity: 0, y: 24 });
+  gsap.set('.hero-stat',           { opacity: 0, y: 30 });
+  gsap.set('.hero-scroll-hint',    { opacity: 0 });
+
+  var heroTL = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  heroTL
+    .to('.hero-eyebrow', {
+      opacity: 1, y: 0, duration: 0.85
+    }, 0.15)
+    .to('.hero-headline', {
+      opacity: 1, y: 0, duration: 1.1
+    }, 0.35)
+    .to('.hero-sub', {
+      opacity: 1, y: 0, duration: 0.9
+    }, 0.65)
+    .to('.hero-actions .btn', {
+      opacity: 1, y: 0, duration: 0.7, stagger: 0.13
+    }, 0.9)
+    .to('.hero-stat', {
+      opacity: 1, y: 0, duration: 0.7, stagger: 0.09
+    }, 1.05)
+    .to('.hero-scroll-hint', {
+      opacity: 1, duration: 0.6
+    }, 1.5);
+
+  // ── Services section ──────────────────────────────────────────────────────
+  gsap.set('#svc-header', { opacity: 0, y: 28 });
+  gsap.to('#svc-header', {
+    scrollTrigger: {
+      trigger: '#svc-header',
+      start: 'top 88%',
+      once: true,
+    },
+    opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+  });
+
+  // Each service card comes in from slightly below, staggered
+  gsap.set('.svc', { opacity: 0, y: 52 });
+  gsap.to('.svc', {
+    scrollTrigger: {
+      trigger: '.services-grid',
+      start: 'top 80%',
+      once: true,
+    },
+    opacity: 1, y: 0,
+    duration: 0.9,
+    stagger: { amount: 0.45, from: 'start' },
+    ease: 'power3.out',
+  });
+
+  // ── Process section header ────────────────────────────────────────────────
+  gsap.set('.process-section-hdr', { opacity: 0, y: 24 });
+  gsap.to('.process-section-hdr', {
+    scrollTrigger: {
+      trigger: '.process-outer',
+      start: 'top 85%',
+      once: true,
+    },
+    opacity: 1, y: 0, duration: 0.85, ease: 'power2.out',
+  });
+
+  // ── Stack section header ──────────────────────────────────────────────────
+  gsap.set('#stack-header', { opacity: 0, y: 28 });
+  gsap.to('#stack-header', {
+    scrollTrigger: {
+      trigger: '#stack-header',
+      start: 'top 88%',
+      once: true,
+    },
+    opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+  });
+
+  // Ticker bar slides in
+  gsap.set('#ticker', { opacity: 0 });
+  gsap.to('#ticker', {
+    scrollTrigger: {
+      trigger: '#ticker',
+      start: 'top 90%',
+      once: true,
+    },
+    opacity: 1, duration: 0.9, ease: 'power2.out',
+  });
+
+  // Stack grid — cards stagger in
+  gsap.set('.stack-cat', { opacity: 0, y: 40 });
+  gsap.to('.stack-cat', {
+    scrollTrigger: {
+      trigger: '#stack-grid',
+      start: 'top 82%',
+      once: true,
+    },
+    opacity: 1, y: 0,
+    duration: 0.85,
+    stagger: { amount: 0.35, from: 'start' },
+    ease: 'power2.out',
+  });
+
+  // ── Contact section ───────────────────────────────────────────────────────
+  gsap.set('.contact-headline', { opacity: 0, x: -40 });
+  gsap.set('.contact-sub',      { opacity: 0, x: -24 });
+  gsap.set('.contact-links',    { opacity: 0, x: -24 });
+  gsap.set('.contact-form',     { opacity: 0, x: 40 });
+
+  var contactTrigger = {
+    trigger: '#contact',
+    start: 'top 78%',
+    once: true,
+  };
+
+  gsap.to('.contact-headline', {
+    scrollTrigger: contactTrigger,
+    opacity: 1, x: 0, duration: 1.0, ease: 'power3.out',
+  });
+  gsap.to('.contact-sub', {
+    scrollTrigger: contactTrigger,
+    opacity: 1, x: 0, duration: 0.85, ease: 'power2.out', delay: 0.15,
+  });
+  gsap.to('.contact-links', {
+    scrollTrigger: contactTrigger,
+    opacity: 1, x: 0, duration: 0.85, ease: 'power2.out', delay: 0.28,
+  });
+  gsap.to('.contact-form', {
+    scrollTrigger: contactTrigger,
+    opacity: 1, x: 0, duration: 0.95, ease: 'power3.out', delay: 0.1,
+  });
+
+  // ── Contact links underline reveal ───────────────────────────────────────
+  gsap.set('.contact-link', { opacity: 0, y: 14 });
+  gsap.to('.contact-link', {
+    scrollTrigger: {
+      trigger: '.contact-links',
+      start: 'top 82%',
+      once: true,
+    },
+    opacity: 1, y: 0,
+    duration: 0.65,
+    stagger: 0.1,
+    ease: 'power2.out',
+    delay: 0.3,
+  });
+})();
+
+// ─── PROCESS STICKY SECTION ──────────────────────────────────────────────────
+var procScrollSpace = document.querySelector('.process-scroll-space');
+var procNavItems    = document.querySelectorAll('.proc-nav-item');
+var procStepEls     = document.querySelectorAll('.proc-step');
+var procBarFills    = [
+  document.getElementById('pb0'),
+  document.getElementById('pb1'),
+  document.getElementById('pb2'),
+  document.getElementById('pb3'),
+];
+
+var activeStep = 0;
+
+function setStep(idx) {
+  var s = Math.max(0, Math.min(3, idx));
+  if (s === activeStep && procStepEls[s].classList.contains('active')) return;
+  activeStep = s;
+
+  procNavItems.forEach(function(el, i) { el.classList.toggle('active', i === s); });
+  procStepEls.forEach(function(el, i)  { el.classList.toggle('active', i === s); });
+  procBarFills.forEach(function(fill, i) { fill.classList.toggle('filled', i <= s); });
+}
+
+var procTick = false;
+window.addEventListener('scroll', function() {
+  if (!procTick) {
+    requestAnimationFrame(function() {
+      if (procScrollSpace) {
+        var rect   = procScrollSpace.getBoundingClientRect();
+        var total  = procScrollSpace.offsetHeight - window.innerHeight;
+        var scrolled = -rect.top;
+        if (scrolled >= 0 && scrolled <= total) {
+          var progress = scrolled / total;
+          setStep(Math.floor(progress * 4));
+        }
+      }
+      procTick = false;
+    });
+    procTick = true;
+  }
+}, { passive: true });
+
+// Keyboard / click to jump to step
+procNavItems.forEach(function(item) {
+  var handler = function() {
+    var step = parseInt(item.dataset.step, 10);
+    if (!procScrollSpace || window.innerWidth <= 768) return;
+    var top   = procScrollSpace.offsetTop;
+    var total = procScrollSpace.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: top + (step / 4) * total, behavior: 'smooth' });
+  };
+  item.addEventListener('click', handler);
+  item.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') handler();
+  });
+});
+
+// ─── CONTACT FORM — EmailJS ───────────────────────────────────────────────────
+emailjs.init({ publicKey: 'MTCdwaT-rY7tekbz_' });
+
+var EMAILJS_SERVICE  = 'service_vir9big';
+var EMAILJS_TEMPLATE = 'template_49fc4nf';
+
+var contactForm = document.getElementById('contactForm');
+var formSuccess = document.getElementById('formSuccess');
+var formError   = document.getElementById('formError');
+var formSubmit  = document.getElementById('formSubmit');
+
+contactForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  var emailField = document.getElementById('email');
+  var emailVal   = emailField.value.trim();
+  if (!emailVal || !emailVal.includes('@')) {
+    emailField.style.borderBottomColor = 'var(--accent)';
+    emailField.focus();
+    return;
+  }
+  emailField.style.borderBottomColor = '';
+  formError.style.display = 'none';
+
+  formSubmit.textContent = 'Sending…';
+  formSubmit.disabled    = true;
+
+  var firstName = document.getElementById('fname').value.trim();
+  var lastName  = document.getElementById('lname').value.trim();
+  var fullName  = [firstName, lastName].filter(Boolean).join(' ') || 'Website visitor';
+
+  var templateParams = {
+    from_name:    fullName,
+    from_email:   emailVal,
+    reply_to:     emailVal,
+    service_type: document.getElementById('service').value || 'Not specified',
+    message:      document.getElementById('brief').value  || '(no message)',
+    to_email:     'erickmureruswa@gmail.com',
+  };
+
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+    .then(function() {
+      contactForm.style.transition    = 'opacity 0.4s';
+      contactForm.style.opacity       = '0.3';
+      contactForm.style.pointerEvents = 'none';
+      setTimeout(function() {
+        contactForm.style.display = 'none';
+        formSuccess.style.display = 'block';
+      }, 450);
+    })
+    .catch(function(err) {
+      console.error('EmailJS error:', err);
+      var detail = (err && err.text) ? err.text : (err && err.message) ? err.message : JSON.stringify(err);
+      formError.textContent   = '✕ ERROR: ' + detail;
+      formError.style.display = 'block';
+      formSubmit.textContent  = 'Send Brief →';
+      formSubmit.disabled     = false;
+    });
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+rafParallax();
+setStep(0);
+</script>
+</body>
+</html>

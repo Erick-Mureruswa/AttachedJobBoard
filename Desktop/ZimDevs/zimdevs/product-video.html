@@ -1,0 +1,1586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZimDevs — Product Video</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0a0a0a;
+  --fg:     #f5f5f2;
+  --accent: #e8622a;
+  --muted:  #555550;
+  --green:  #4ade80;
+  --font-display: 'Times New Roman', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;
+  overflow: hidden;
+  cursor: none;
+}
+
+/* ─── VIDEO FRAME ─── */
+#vf {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ─── GRAIN ─── */
+#grain {
+  position: absolute;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: screen;
+}
+
+/* ─── SCANLINES ─── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 901;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 3px,
+    rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+  );
+}
+
+/* ─── FLASH LAYER ─── */
+#flash {
+  position: absolute;
+  inset: 0;
+  z-index: 950;
+  pointer-events: none;
+  opacity: 0;
+  background: #fff;
+}
+#flash.dark { background: #000; }
+#flash.accent { background: var(--accent); }
+
+/* ─── PROGRESS BAR ─── */
+#progress-track {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  z-index: 980;
+}
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: none;
+}
+
+/* ─── REPLAY BUTTON ─── */
+#replay-btn {
+  position: absolute;
+  bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 990;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg);
+  background: transparent;
+  border: 1.5px solid rgba(245,245,242,0.3);
+  padding: 12px 28px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+#replay-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ─── SCENE BASE ─── */
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ─── CORNER LABELS ─── */
+.corner-tl, .corner-tr, .corner-bl, .corner-br {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+  pointer-events: none;
+  z-index: 20;
+}
+.corner-tl { top: 24px; left: 32px; }
+.corner-tr { top: 24px; right: 32px; text-align: right; }
+.corner-bl { bottom: 24px; left: 32px; }
+.corner-br { bottom: 24px; right: 32px; text-align: right; }
+
+/* ─── SCENE 1: INTRO ─── */
+#scene-intro { background: var(--bg); }
+
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+}
+
+.intro-logo {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.intro-logo-text {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 14vw, 180px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  line-height: 1;
+  display: flex;
+  gap: 0;
+}
+.intro-logo-text .dot { color: var(--accent); }
+.intro-logo-letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(-60px);
+}
+.intro-sub {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.4vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 20px;
+  opacity: 0;
+}
+
+/* ─── SCENE 2: TAGLINE ─── */
+#scene-tagline { background: var(--bg); flex-direction: column; gap: 0; }
+
+.tagline-eyebrow {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.1vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: clamp(16px, 2.5vw, 32px);
+  opacity: 0;
+}
+.tagline-line {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 10vw, 148px);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  overflow: hidden;
+  clip-path: inset(0 100% 0 0);
+}
+.tagline-line span { display: block; }
+.tagline-line.accent-line { color: var(--accent); font-style: italic; }
+.tagline-rule {
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  margin-top: clamp(20px, 3vw, 40px);
+}
+
+/* ─── SCENE 3: STATS ─── */
+#scene-stats { background: var(--bg); }
+
+.stat-wrap {
+  text-align: center;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+.stat-number {
+  font-family: var(--font-display);
+  font-size: clamp(120px, 22vw, 300px);
+  font-weight: 400;
+  line-height: 0.85;
+  color: var(--fg);
+  letter-spacing: -0.04em;
+}
+.stat-number .stat-unit {
+  font-style: italic;
+  color: var(--accent);
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.4vw, 16px);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: clamp(12px, 2vw, 24px);
+}
+.stat-bar {
+  width: 0;
+  height: 1.5px;
+  background: var(--accent);
+  margin-top: clamp(16px, 2.5vw, 28px);
+}
+
+/* ─── SCENE 4: SERVICES ─── */
+#scene-services { background: var(--bg); align-items: stretch; }
+
+.services-wrap {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.svc-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(24px, 4vw, 56px);
+  border-right: 1.5px solid rgba(245,245,242,0.07);
+  border-bottom: 1.5px solid rgba(245,245,242,0.07);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(40px);
+}
+.svc-cell:nth-child(2)  { border-right: none; }
+.svc-cell:nth-child(3)  { border-bottom: none; }
+.svc-cell:nth-child(4)  { border-right: none; border-bottom: none; }
+.svc-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: none;
+  z-index: 0;
+}
+.svc-cell.lit::before { transform: scaleY(1); }
+.svc-cell-inner { position: relative; z-index: 1; }
+.svc-id {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1vw, 11px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: clamp(8px, 1.5vw, 16px);
+}
+.svc-cell.lit .svc-id { color: rgba(10,10,10,0.55); }
+.svc-name {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.5vw, 52px);
+  font-weight: 400;
+  line-height: 1.0;
+  color: var(--fg);
+}
+.svc-cell.lit .svc-name { color: #0a0a0a; }
+
+/* ─── SCENE 5: TERMINAL ─── */
+#scene-terminal { background: var(--bg); padding: 0 clamp(24px, 6vw, 80px); }
+
+.terminal-wrap {
+  width: 100%;
+  max-width: 860px;
+}
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1.5px solid rgba(255,255,255,0.06);
+  opacity: 0;
+}
+.t-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.t-dot-r { background: #ff5f57; }
+.t-dot-y { background: #febc2e; }
+.t-dot-g { background: #28c840; }
+.t-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-left: 8px;
+}
+.terminal-body {
+  padding: clamp(20px, 3vw, 36px) clamp(20px, 3vw, 36px);
+  background: rgba(255,255,255,0.025);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  border-top: none;
+  min-height: clamp(180px, 22vw, 280px);
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.5vw, 16px);
+  line-height: 1.9;
+}
+.t-line { opacity: 0; display: block; white-space: nowrap; overflow: hidden; }
+.t-prompt { color: var(--accent); }
+.t-cmd    { color: var(--fg); }
+.t-out    { color: var(--muted); padding-left: 0; }
+.t-ok     { color: var(--green); }
+.t-cursor {
+  display: inline-block;
+  width: 9px; height: 1.1em;
+  background: var(--accent);
+  vertical-align: middle;
+  animation: blink 0.9s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ─── SCENE 6: MANIFESTO ─── */
+#scene-manifesto { background: var(--fg); flex-direction: column; }
+
+.mf-super {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.1vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(10,10,10,0.35);
+  margin-bottom: clamp(20px, 3vw, 36px);
+  opacity: 0;
+}
+.mf-line {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 9.5vw, 138px);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: #0a0a0a;
+  overflow: hidden;
+}
+.mf-line span { display: block; transform: translateY(110%); }
+.mf-line.em-line span { color: var(--accent); font-style: italic; }
+.mf-rule {
+  width: 0;
+  height: 2px;
+  background: #0a0a0a;
+  margin-top: clamp(24px, 3.5vw, 44px);
+  align-self: flex-start;
+  margin-left: clamp(4px, 1vw, 12px);
+}
+
+/* ─── SCENE 7: OUTRO ─── */
+#scene-outro { background: var(--bg); flex-direction: column; gap: 0; }
+
+.outro-logo {
+  font-family: var(--font-display);
+  font-size: clamp(60px, 11vw, 148px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: var(--fg);
+  line-height: 1;
+  opacity: 0;
+}
+.outro-logo .dot { color: var(--accent); }
+.outro-tagline {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.3vw, 15px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: clamp(12px, 2vw, 22px);
+  opacity: 0;
+}
+.outro-divider {
+  width: clamp(40px, 6vw, 72px);
+  height: 1.5px;
+  background: rgba(255,255,255,0.1);
+  margin: clamp(28px, 4.5vw, 52px) 0;
+  opacity: 0;
+}
+.outro-links {
+  display: flex;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+}
+.outro-link {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.2vw, 14px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.outro-link .link-label { color: var(--fg); }
+.outro-cta {
+  margin-top: clamp(28px, 4.5vw, 52px);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.2vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+}
+
+/* ─── GLITCH KEYFRAMES ─── */
+@keyframes glitch-skew {
+  0%   { transform: skewX(0deg); }
+  2%   { transform: skewX(-8deg); }
+  4%   { transform: skewX(6deg); }
+  6%   { transform: skewX(-3deg); }
+  8%   { transform: skewX(0deg); }
+  100% { transform: skewX(0deg); }
+}
+@keyframes glitch-clip-1 {
+  0%   { clip-path: inset(0 0 100% 0); }
+  15%  { clip-path: inset(30% 0 40% 0); }
+  30%  { clip-path: inset(70% 0 5% 0); }
+  45%  { clip-path: inset(10% 0 60% 0); }
+  60%  { clip-path: inset(50% 0 20% 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+@keyframes rgb-shift {
+  0%   { text-shadow: 0 0 0 transparent; }
+  25%  { text-shadow: -4px 0 0 rgba(255,0,80,0.6), 4px 0 0 rgba(0,200,255,0.6); }
+  50%  { text-shadow: 3px 0 0 rgba(255,0,80,0.5), -3px 0 0 rgba(0,200,255,0.5); }
+  75%  { text-shadow: -2px 0 0 rgba(255,0,80,0.4), 2px 0 0 rgba(0,200,255,0.4); }
+  100% { text-shadow: 0 0 0 transparent; }
+}
+.glitch-anim {
+  animation: glitch-skew 0.35s steps(1) forwards, rgb-shift 0.35s steps(4) forwards;
+}
+
+/* ─── VIGNETTE ─── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.72) 100%);
+}
+
+/* ─── RECORD OVERLAY ─── */
+#record-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  backdrop-filter: blur(8px);
+}
+.rec-logo {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 56px);
+  color: var(--fg);
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.rec-logo .dot { color: var(--accent); }
+.rec-title {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.2vw, 12px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: clamp(32px, 5vw, 52px);
+}
+.rec-steps {
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.3vw, 14px);
+  line-height: 2.2;
+  color: rgba(245,245,242,0.55);
+  text-align: left;
+  margin-bottom: clamp(32px, 5vw, 52px);
+  max-width: 480px;
+  width: 100%;
+  padding: 0 24px;
+}
+.rec-steps strong { color: var(--fg); }
+.rec-steps .accent { color: var(--accent); }
+#rec-btn {
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.3vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  background: var(--accent);
+  border: none;
+  padding: 16px 40px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+#rec-btn:hover { opacity: 0.88; transform: scale(1.02); }
+#rec-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.rec-note {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1vw, 11px);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.2);
+  margin-top: 18px;
+  text-align: center;
+  max-width: 420px;
+  padding: 0 24px;
+  line-height: 1.8;
+}
+/* Recording indicator pill */
+#rec-indicator {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,10,10,0.85);
+  border: 1.5px solid rgba(232,98,42,0.4);
+  padding: 8px 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+#rec-indicator.active { display: flex; }
+.rec-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #ff3b3b;
+  animation: rec-blink 1.1s ease-in-out infinite;
+}
+@keyframes rec-blink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+
+/* ─── ASPECT RATIO LETTERBOX ─── */
+#letterbox-top, #letterbox-bottom {
+  position: absolute;
+  left: 0; right: 0;
+  background: #000;
+  z-index: 960;
+  height: 0;
+  pointer-events: none;
+}
+#letterbox-top    { top: 0; }
+#letterbox-bottom { bottom: 0; }
+
+/* ─── TIMESTAMP ─── */
+#timestamp {
+  position: absolute;
+  bottom: 14px;
+  right: 32px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.12);
+  z-index: 970;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div id="vf">
+
+  <!-- Grain -->
+  <canvas id="grain" aria-hidden="true"></canvas>
+
+  <!-- Scanlines -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- Vignette -->
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Flash cut layer -->
+  <div id="flash" aria-hidden="true"></div>
+
+  <!-- Letterbox bars -->
+  <div id="letterbox-top"    aria-hidden="true"></div>
+  <div id="letterbox-bottom" aria-hidden="true"></div>
+
+  <!-- Progress -->
+  <div id="progress-track" aria-hidden="true">
+    <div id="progress-fill"></div>
+  </div>
+
+  <!-- Timestamp -->
+  <div id="timestamp">00:00</div>
+
+  <!-- Persistent corner labels (shown on dark scenes) -->
+  <div class="corner-tl" id="corner-tl">ZimDevs © 2025</div>
+  <div class="corner-tr" id="corner-tr">Zimbabwe-based, world-class</div>
+
+  <!-- ─── SCENE 1: INTRO ─── -->
+  <div class="scene" id="scene-intro">
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+    <div class="intro-logo">
+      <div class="intro-logo-text">
+        <span class="intro-logo-letter" id="ll-z">Z</span><!--
+        --><span class="intro-logo-letter" id="ll-i">I</span><!--
+        --><span class="intro-logo-letter" id="ll-m">M</span><!--
+        --><span class="intro-logo-letter dot" id="ll-dot">.</span><!--
+        --><span class="intro-logo-letter" id="ll-d">D</span><!--
+        --><span class="intro-logo-letter" id="ll-e">E</span><!--
+        --><span class="intro-logo-letter" id="ll-v">V</span><!--
+        --><span class="intro-logo-letter" id="ll-s">S</span>
+      </div>
+      <div class="intro-sub" id="intro-sub">Zimbabwe-based, world-class</div>
+    </div>
+  </div>
+
+  <!-- ─── SCENE 2: TAGLINE ─── -->
+  <div class="scene" id="scene-tagline">
+    <div style="padding: 0 clamp(24px,6vw,80px); width:100%;">
+      <div class="tagline-eyebrow" id="tl-eyebrow">What we stand for</div>
+      <div class="tagline-line"            id="tl-1"><span>We build</span></div>
+      <div class="tagline-line accent-line" id="tl-2"><span>systems</span></div>
+      <div class="tagline-line"            id="tl-3"><span>that run</span></div>
+      <div class="tagline-line accent-line" id="tl-4"><span>themselves.</span></div>
+      <div class="tagline-rule" id="tl-rule"></div>
+    </div>
+  </div>
+
+  <!-- ─── SCENE 3: STATS ─── -->
+  <div class="scene" id="scene-stats">
+
+    <div class="stat-wrap" id="stat-0">
+      <div class="stat-number">48<span class="stat-unit">h</span></div>
+      <div class="stat-label">avg. time to first deploy</div>
+      <div class="stat-bar" id="sb-0"></div>
+    </div>
+
+    <div class="stat-wrap" id="stat-1">
+      <div class="stat-number">3<span class="stat-unit">×</span></div>
+      <div class="stat-label">faster than in-house builds</div>
+      <div class="stat-bar" id="sb-1"></div>
+    </div>
+
+    <div class="stat-wrap" id="stat-2">
+      <div class="stat-number">100<span class="stat-unit">%</span></div>
+      <div class="stat-label">projects shipped on deadline</div>
+      <div class="stat-bar" id="sb-2"></div>
+    </div>
+
+    <div class="stat-wrap" id="stat-3">
+      <div class="stat-number">0<span class="stat-unit">.</span></div>
+      <div class="stat-label">vendor lock-in. ever.</div>
+      <div class="stat-bar" id="sb-3"></div>
+    </div>
+
+  </div>
+
+  <!-- ─── SCENE 4: SERVICES ─── -->
+  <div class="scene" id="scene-services">
+    <div class="services-wrap">
+      <div class="svc-cell" id="svc-0">
+        <div class="svc-cell-inner">
+          <span class="svc-id">01 — Web Dev</span>
+          <div class="svc-name">Custom<br>Web Dev</div>
+        </div>
+      </div>
+      <div class="svc-cell" id="svc-1">
+        <div class="svc-cell-inner">
+          <span class="svc-id">02 — AI</span>
+          <div class="svc-name">AI<br>Integrations</div>
+        </div>
+      </div>
+      <div class="svc-cell" id="svc-2">
+        <div class="svc-cell-inner">
+          <span class="svc-id">03 — Backend</span>
+          <div class="svc-name">API Design<br>&amp; Backend</div>
+        </div>
+      </div>
+      <div class="svc-cell" id="svc-3">
+        <div class="svc-cell-inner">
+          <span class="svc-id">04 — Automation</span>
+          <div class="svc-name">Workflow<br>Automation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SCENE 5: TERMINAL ─── -->
+  <div class="scene" id="scene-terminal">
+    <div class="terminal-wrap">
+      <div class="terminal-header" id="term-header">
+        <div class="t-dot t-dot-r"></div>
+        <div class="t-dot t-dot-y"></div>
+        <div class="t-dot t-dot-g"></div>
+        <span class="t-title">zimdevs — production deploy</span>
+      </div>
+      <div class="terminal-body" id="term-body">
+        <span class="t-line" id="tl-cmd1"><span class="t-prompt">$ </span><span class="t-cmd" id="tc-1"></span><span class="t-cursor" id="tcursor"></span></span>
+        <span class="t-line" id="tl-out1"></span>
+        <span class="t-line" id="tl-out2"></span>
+        <span class="t-line" id="tl-out3"></span>
+        <span class="t-line" id="tl-ok1"></span>
+        <span class="t-line" id="tl-gap" style="display:block;height:10px;opacity:1;"></span>
+        <span class="t-line" id="tl-cmd2"><span class="t-prompt">$ </span><span class="t-cmd" id="tc-2"></span></span>
+        <span class="t-line" id="tl-out4"></span>
+        <span class="t-line" id="tl-out5"></span>
+        <span class="t-line" id="tl-ok2"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SCENE 6: MANIFESTO ─── -->
+  <div class="scene" id="scene-manifesto">
+    <div style="padding: 0 clamp(24px,6vw,80px); width:100%;">
+      <div class="mf-super" id="mf-super">Our promise to every client</div>
+      <div class="mf-line"         id="mfl-1"><span>We build</span></div>
+      <div class="mf-line em-line" id="mfl-2"><span>systems</span></div>
+      <div class="mf-line"         id="mfl-3"><span>that run</span></div>
+      <div class="mf-line em-line" id="mfl-4"><span>themselves.</span></div>
+      <div class="mf-rule" id="mf-rule"></div>
+    </div>
+  </div>
+
+  <!-- ─── SCENE 7: OUTRO ─── -->
+  <div class="scene" id="scene-outro">
+    <div style="text-align:center; padding: 0 clamp(24px,6vw,80px);">
+      <div class="outro-logo" id="outro-logo">ZIM<span class="dot">.</span>DEVS</div>
+      <div class="outro-tagline" id="outro-tagline">Zimbabwe-based, world-class</div>
+      <div class="outro-divider" id="outro-divider"></div>
+      <div class="outro-links" id="outro-links">
+        <div class="outro-link">
+          <span>Email</span>
+          <span class="link-label">erickmureruswa@gmail.com</span>
+        </div>
+        <div class="outro-link">
+          <span>WhatsApp</span>
+          <span class="link-label">+263 77 146 5624</span>
+        </div>
+        <div class="outro-link">
+          <span>Instagram</span>
+          <span class="link-label">@zim_young_devs</span>
+        </div>
+      </div>
+      <div class="outro-cta" id="outro-cta">Start your project today →</div>
+    </div>
+  </div>
+
+  <!-- Replay -->
+  <button id="replay-btn" aria-label="Replay video">↺ &nbsp;REPLAY</button>
+
+</div>
+
+<!-- Record overlay (outside #vf so it doesn't get captured) -->
+<div id="record-overlay">
+  <div class="rec-logo">ZIM<span class="dot">.</span>DEVS</div>
+  <div class="rec-title">Product Video — 60 seconds</div>
+  <div class="rec-steps">
+    <span><strong>1.</strong> Click <span class="accent">Start Recording</span> below</span><br>
+    <span><strong>2.</strong> In the dialog — choose <span class="accent">"Chrome Tab"</span> or <span class="accent">"This Tab"</span></span><br>
+    <span><strong>3.</strong> Select <span class="accent">this tab</span> from the list, click <span class="accent">Share</span></span><br>
+    <span><strong>4.</strong> The video plays automatically &amp; downloads when done</span>
+  </div>
+  <button id="rec-btn">⏺ &nbsp;Start Recording</button>
+  <div class="rec-note">
+    Outputs a .webm file · ~60 seconds · No software needed<br>
+    Convert to MP4 free at <strong>cloudconvert.com</strong> if needed
+  </div>
+</div>
+
+<!-- Recording indicator -->
+<div id="rec-indicator">
+  <div class="rec-dot"></div>
+  <span>Recording — <span id="rec-timer">0:00</span></span>
+</div>
+
+<!-- ─── LIBRARIES ─── -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<script>
+'use strict';
+
+// ─── GRAIN CANVAS ──────────────────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('grain');
+  var ctx = canvas.getContext('2d');
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function drawGrain() {
+    var w = canvas.width, h = canvas.height;
+    var img = ctx.createImageData(w, h);
+    var d   = img.data;
+    for (var i = 0; i < d.length; i += 4) {
+      var v = (Math.random() * 255) | 0;
+      d[i] = v; d[i+1] = v; d[i+2] = v; d[i+3] = 22;
+    }
+    ctx.putImageData(img, 0, 0);
+    requestAnimationFrame(drawGrain);
+  }
+  drawGrain();
+})();
+
+// ─── LETTERBOX ─────────────────────────────────────────────────────────────────
+(function() {
+  var top = document.getElementById('letterbox-top');
+  var bot = document.getElementById('letterbox-bottom');
+  function setLetterbox() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var targetH = vw * (9/16);
+    if (targetH < vh) {
+      var bars = (vh - targetH) / 2;
+      top.style.height = bars + 'px';
+      bot.style.height = bars + 'px';
+    } else {
+      top.style.height = '0';
+      bot.style.height = '0';
+    }
+  }
+  window.addEventListener('resize', setLetterbox);
+  setLetterbox();
+})();
+
+// ─── THREE.JS PARTICLE BACKGROUND (Scene 1 only) ──────────────────────────────
+var bgRenderer, bgScene, bgCamera, bgPoints, bgGeo;
+
+(function() {
+  var canvas = document.getElementById('bg-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  bgRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  bgRenderer.setClearColor(0x000000, 0);
+
+  bgScene  = new THREE.Scene();
+  bgCamera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  bgCamera.position.set(0, 0, 22);
+
+  var N = 280;
+  var pos = new Float32Array(N * 3);
+  var vel = new Float32Array(N * 3);
+  var ph  = new Float32Array(N);
+
+  for (var i = 0; i < N; i++) {
+    pos[i*3]     = (Math.random() - 0.5) * 50;
+    pos[i*3 + 1] = (Math.random() - 0.5) * 30;
+    pos[i*3 + 2] = (Math.random() - 0.5) * 24;
+    vel[i*3]     = (Math.random() - 0.5) * 0.004;
+    vel[i*3 + 1] = (Math.random() - 0.5) * 0.003;
+    vel[i*3 + 2] = (Math.random() - 0.5) * 0.002;
+    ph[i]        = Math.random() * Math.PI * 2;
+  }
+
+  bgGeo = new THREE.BufferGeometry();
+  bgGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+  var pMat = new THREE.PointsMaterial({ size: 0.085, color: 0xf0f0ec, transparent: true, opacity: 0.5, sizeAttenuation: true, depthWrite: false });
+  bgPoints = new THREE.Points(bgGeo, pMat);
+  bgScene.add(bgPoints);
+
+  var accentIdx = [];
+  for (var j = 0; j < N; j++) if (Math.random() < 0.15) accentIdx.push(j);
+  var aPos = new Float32Array(accentIdx.length * 3);
+  accentIdx.forEach(function(si, di) {
+    aPos[di*3] = pos[si*3]; aPos[di*3+1] = pos[si*3+1]; aPos[di*3+2] = pos[si*3+2];
+  });
+  var aGeo = new THREE.BufferGeometry();
+  aGeo.setAttribute('position', new THREE.BufferAttribute(aPos, 3));
+  var aMat = new THREE.PointsMaterial({ size: 0.15, color: 0xe8622a, transparent: true, opacity: 0.9, sizeAttenuation: true, depthWrite: false });
+  bgScene.add(new THREE.Points(aGeo, aMat));
+
+  var CONN = 6.5, CONN_SQ = CONN * CONN, MAX_SEG = 500;
+  var lPos = new Float32Array(MAX_SEG * 6), lCol = new Float32Array(MAX_SEG * 6);
+  var lGeo = new THREE.BufferGeometry();
+  lGeo.setAttribute('position', new THREE.BufferAttribute(lPos, 3));
+  lGeo.setAttribute('color',    new THREE.BufferAttribute(lCol, 3));
+  lGeo.setDrawRange(0, 0);
+  var lMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.18, vertexColors: true, depthWrite: false });
+  bgScene.add(new THREE.LineSegments(lGeo, lMat));
+
+  var lf = 0;
+  function rebuildLines(p) {
+    if (++lf % 3 !== 0) return;
+    var s = 0;
+    for (var a = 0; a < N && s < MAX_SEG; a++) {
+      for (var b = a + 1; b < N && s < MAX_SEG; b++) {
+        var dx = p[a*3]-p[b*3], dy = p[a*3+1]-p[b*3+1], dz = p[a*3+2]-p[b*3+2];
+        var dSq = dx*dx+dy*dy+dz*dz;
+        if (dSq < CONN_SQ) {
+          var al = (1 - dSq/CONN_SQ) * 0.75;
+          var base = s * 6;
+          lPos[base]=p[a*3];   lPos[base+1]=p[a*3+1]; lPos[base+2]=p[a*3+2];
+          lPos[base+3]=p[b*3]; lPos[base+4]=p[b*3+1]; lPos[base+5]=p[b*3+2];
+          var isAcc = Math.random() < 0.1;
+          var cr = isAcc ? 0.91*al : 0.94*al, cg = isAcc ? 0.38*al : 0.94*al, cb = isAcc ? 0.16*al : 0.94*al;
+          lCol[base]=cr;lCol[base+1]=cg;lCol[base+2]=cb;lCol[base+3]=cr;lCol[base+4]=cg;lCol[base+5]=cb;
+          s++;
+        }
+      }
+    }
+    lGeo.setDrawRange(0, s * 2);
+    lGeo.attributes.position.needsUpdate = true;
+    lGeo.attributes.color.needsUpdate    = true;
+  }
+
+  function resizeBg() {
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    bgRenderer.setSize(w, h, false);
+    bgCamera.aspect = w / h;
+    bgCamera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resizeBg);
+  resizeBg();
+
+  var lastTs = 0;
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    var dt = Math.min((ts - lastTs) / 1000, 0.05); lastTs = ts;
+    var p = bgGeo.attributes.position.array;
+    var ap = aGeo.attributes.position.array;
+    for (var n = 0; n < N; n++) {
+      p[n*3]   += vel[n*3];
+      p[n*3+1] += vel[n*3+1] + Math.sin(ts*0.00025 + ph[n]) * 0.0012;
+      p[n*3+2] += vel[n*3+2];
+      if (p[n*3]   >  25) p[n*3]   = -25; if (p[n*3]   < -25) p[n*3]   = 25;
+      if (p[n*3+1] >  15) p[n*3+1] = -15; if (p[n*3+1] < -15) p[n*3+1] = 15;
+      if (p[n*3+2] >  12) p[n*3+2] = -12; if (p[n*3+2] < -12) p[n*3+2] = 12;
+    }
+    bgGeo.attributes.position.needsUpdate = true;
+    accentIdx.forEach(function(si, di) {
+      ap[di*3]=p[si*3]; ap[di*3+1]=p[si*3+1]; ap[di*3+2]=p[si*3+2];
+    });
+    aGeo.attributes.position.needsUpdate = true;
+    rebuildLines(p);
+    bgCamera.position.x += (-bgCamera.position.x) * 0.01;
+    bgCamera.lookAt(0, 0, 0);
+    bgRenderer.render(bgScene, bgCamera);
+  }
+  requestAnimationFrame(frame);
+})();
+
+// ─── HELPERS ───────────────────────────────────────────────────────────────────
+var TOTAL_DURATION = 40;
+
+function flash(type, duration) {
+  var el = document.getElementById('flash');
+  el.className = type || '';
+  gsap.fromTo(el, { opacity: 0.85 }, { opacity: 0, duration: duration || 0.35, ease: 'power2.out' });
+}
+
+function showScene(id) {
+  var el = document.getElementById(id);
+  if (el) { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }
+}
+function hideScene(id) {
+  var el = document.getElementById(id);
+  if (el) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; }
+}
+
+function typeText(elementId, text, duration, callback) {
+  var el = document.getElementById(elementId);
+  if (!el) { if (callback) callback(); return; }
+  var i = 0;
+  var interval = text.length > 0 ? (duration * 1000) / text.length : 50;
+  var t = setInterval(function() {
+    if (i <= text.length) {
+      el.textContent = text.substring(0, i);
+      i++;
+    } else {
+      clearInterval(t);
+      if (callback) callback();
+    }
+  }, interval);
+}
+
+function showTermLine(id, delay) {
+  gsap.to(document.getElementById(id), { opacity: 1, duration: 0.01, delay: delay });
+}
+
+function setTimestamp(seconds) {
+  var m = Math.floor(seconds / 60);
+  var s = Math.floor(seconds % 60);
+  var ts = document.getElementById('timestamp');
+  if (ts) ts.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+// ─── PROGRESS BAR & TIMESTAMP ──────────────────────────────────────────────────
+var startTime = null;
+function animateProgress() {
+  if (!startTime) startTime = performance.now();
+  var elapsed = (performance.now() - startTime) / 1000;
+  var pct = Math.min((elapsed / TOTAL_DURATION) * 100, 100);
+  var fill = document.getElementById('progress-fill');
+  if (fill) fill.style.width = pct + '%';
+  setTimestamp(elapsed);
+  if (elapsed < TOTAL_DURATION + 2) requestAnimationFrame(animateProgress);
+}
+
+// ─── MASTER TIMELINE ───────────────────────────────────────────────────────────
+var masterTL;
+
+function buildTimeline() {
+  if (masterTL) masterTL.kill();
+  startTime = null;
+  requestAnimationFrame(animateProgress);
+
+  // ── Reset all scenes ──
+  ['scene-intro','scene-tagline','scene-stats','scene-services',
+   'scene-terminal','scene-manifesto','scene-outro'].forEach(function(id) {
+    hideScene(id);
+  });
+  document.getElementById('replay-btn').style.opacity    = '0';
+  document.getElementById('replay-btn').style.pointerEvents = 'none';
+  document.getElementById('progress-fill').style.width   = '0%';
+  document.getElementById('bg-canvas').style.opacity     = '0';
+
+  // Reset stat wraps
+  [0,1,2,3].forEach(function(i) {
+    var el = document.getElementById('stat-' + i);
+    if (el) { gsap.set(el, { opacity: 0 }); }
+    var sb = document.getElementById('sb-' + i);
+    if (sb) gsap.set(sb, { width: 0 });
+  });
+
+  // Reset service cells
+  [0,1,2,3].forEach(function(i) {
+    var el = document.getElementById('svc-' + i);
+    if (el) { gsap.set(el, { opacity: 0, y: 40 }); el.classList.remove('lit'); }
+  });
+
+  // Reset terminal lines
+  ['tl-cmd1','tl-out1','tl-out2','tl-out3','tl-ok1',
+   'tl-cmd2','tl-out4','tl-out5','tl-ok2'].forEach(function(id) {
+    gsap.set(document.getElementById(id), { opacity: 0 });
+  });
+  gsap.set(document.getElementById('term-header'), { opacity: 0 });
+  var tcursor = document.getElementById('tcursor');
+  if (tcursor) tcursor.style.display = 'inline-block';
+
+  // Reset manifesto
+  ['mfl-1','mfl-2','mfl-3','mfl-4'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.querySelector('span')) gsap.set(el.querySelector('span'), { y: '110%' });
+  });
+  gsap.set(document.getElementById('mf-super'), { opacity: 0, y: 16 });
+  gsap.set(document.getElementById('mf-rule'),  { width: 0 });
+
+  // Reset tagline
+  ['tl-1','tl-2','tl-3','tl-4'].forEach(function(id) {
+    gsap.set(document.getElementById(id), { clipPath: 'inset(0 100% 0 0)' });
+  });
+  gsap.set(document.getElementById('tl-eyebrow'), { opacity: 0, y: 12 });
+  gsap.set(document.getElementById('tl-rule'),    { width: 0 });
+
+  // Reset intro
+  var letters = document.querySelectorAll('.intro-logo-letter');
+  letters.forEach(function(l) { gsap.set(l, { opacity: 0, y: -60 }); });
+  gsap.set(document.getElementById('intro-sub'), { opacity: 0, y: 14 });
+  gsap.set(document.getElementById('bg-canvas'), { opacity: 0 });
+
+  // Reset outro
+  gsap.set(document.getElementById('outro-logo'),    { opacity: 0, y: 30 });
+  gsap.set(document.getElementById('outro-tagline'), { opacity: 0 });
+  gsap.set(document.getElementById('outro-divider'), { opacity: 0 });
+  gsap.set(document.getElementById('outro-links'),   { opacity: 0, y: 16 });
+  gsap.set(document.getElementById('outro-cta'),     { opacity: 0 });
+
+  // Reset tc typed text
+  var tc1 = document.getElementById('tc-1');
+  var tc2 = document.getElementById('tc-2');
+  if (tc1) tc1.textContent = '';
+  if (tc2) tc2.textContent = '';
+
+  var tl1out1 = document.getElementById('tl-out1');
+  var tl1out2 = document.getElementById('tl-out2');
+  var tl1out3 = document.getElementById('tl-out3');
+  var tl1ok1  = document.getElementById('tl-ok1');
+  var tl1out4 = document.getElementById('tl-out4');
+  var tl1out5 = document.getElementById('tl-out5');
+  var tl1ok2  = document.getElementById('tl-ok2');
+  if (tl1out1) tl1out1.innerHTML = '';
+  if (tl1out2) tl1out2.innerHTML = '';
+  if (tl1out3) tl1out3.innerHTML = '';
+  if (tl1ok1)  tl1ok1.innerHTML  = '';
+  if (tl1out4) tl1out4.innerHTML = '';
+  if (tl1out5) tl1out5.innerHTML = '';
+  if (tl1ok2)  tl1ok2.innerHTML  = '';
+
+  masterTL = gsap.timeline({ delay: 0.4 });
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 1 — INTRO  (0 → 5.5s)
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(showScene, ['scene-intro'], 0);
+
+  // Particle canvas fades in
+  masterTL.to(document.getElementById('bg-canvas'), {
+    opacity: 1, duration: 1.8, ease: 'power2.out'
+  }, 0);
+
+  // Logo letters slam down — staggered with back ease
+  masterTL.to('.intro-logo-letter', {
+    opacity: 1, y: 0,
+    duration: 0.55,
+    stagger: 0.07,
+    ease: 'back.out(2.2)'
+  }, 0.4);
+
+  // Glitch flash on logo finish
+  masterTL.call(function() {
+    flash('accent', 0.18);
+    var logoText = document.querySelector('.intro-logo-text');
+    if (logoText) {
+      logoText.classList.add('glitch-anim');
+      setTimeout(function() { logoText.classList.remove('glitch-anim'); }, 360);
+    }
+  }, [], 1.1);
+
+  // Tagline sub fades in
+  masterTL.to(document.getElementById('intro-sub'), {
+    opacity: 1, y: 0, duration: 0.7, ease: 'power2.out'
+  }, 1.4);
+
+  // Hold 1.5s then cut out
+  masterTL.call(function() { flash('dark', 0.28); }, [], 3.8);
+  masterTL.call(hideScene, ['scene-intro'], 4.1);
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 2 — TAGLINE  (4.1 → 10s)
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(showScene, ['scene-tagline'], 4.1);
+
+  masterTL.to(document.getElementById('tl-eyebrow'), {
+    opacity: 1, y: 0, duration: 0.5, ease: 'power2.out'
+  }, 4.3);
+
+  masterTL.to(document.getElementById('tl-1'), {
+    clipPath: 'inset(0 0% 0 0)', duration: 0.7, ease: 'power4.out'
+  }, 4.55);
+  masterTL.to(document.getElementById('tl-2'), {
+    clipPath: 'inset(0 0% 0 0)', duration: 0.7, ease: 'power4.out'
+  }, 4.9);
+  masterTL.to(document.getElementById('tl-3'), {
+    clipPath: 'inset(0 0% 0 0)', duration: 0.7, ease: 'power4.out'
+  }, 5.25);
+  masterTL.to(document.getElementById('tl-4'), {
+    clipPath: 'inset(0 0% 0 0)', duration: 0.75, ease: 'back.out(1.4)'
+  }, 5.6);
+
+  // Accent flash on "themselves."
+  masterTL.call(function() { flash('accent', 0.22); }, [], 5.62);
+
+  masterTL.to(document.getElementById('tl-rule'), {
+    width: '72px', duration: 0.6, ease: 'power3.out'
+  }, 6.2);
+
+  // Cut out
+  masterTL.call(function() { flash('dark', 0.25); }, [], 8.8);
+  masterTL.call(hideScene, ['scene-tagline'], 9.0);
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 3 — STATS  (9.0 → 25s)  — 4 stats × ~4s each
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(showScene, ['scene-stats'], 9.0);
+
+  // ── Stat 0: 48H ──
+  masterTL.to(document.getElementById('stat-0'), {
+    opacity: 1, duration: 0.05
+  }, 9.1);
+  masterTL.call(function() {
+    var el = document.querySelector('#stat-0 .stat-number');
+    if (el) el.classList.add('glitch-anim');
+    setTimeout(function() { if (el) el.classList.remove('glitch-anim'); }, 380);
+  }, [], 9.1);
+  masterTL.to(document.getElementById('sb-0'), {
+    width: '60px', duration: 0.8, ease: 'power3.out'
+  }, 9.5);
+  masterTL.call(function() { flash('', 0.12); }, [], 12.8);
+  masterTL.to(document.getElementById('stat-0'), { opacity: 0, duration: 0.1 }, 13.0);
+
+  // ── Stat 1: 3× ──
+  masterTL.to(document.getElementById('stat-1'), {
+    opacity: 1, duration: 0.05
+  }, 13.1);
+  masterTL.call(function() {
+    var el = document.querySelector('#stat-1 .stat-number');
+    if (el) el.classList.add('glitch-anim');
+    setTimeout(function() { if (el) el.classList.remove('glitch-anim'); }, 380);
+  }, [], 13.1);
+  masterTL.to(document.getElementById('sb-1'), {
+    width: '60px', duration: 0.8, ease: 'power3.out'
+  }, 13.5);
+  masterTL.call(function() { flash('', 0.12); }, [], 16.8);
+  masterTL.to(document.getElementById('stat-1'), { opacity: 0, duration: 0.1 }, 17.0);
+
+  // ── Stat 2: 100% ──
+  masterTL.to(document.getElementById('stat-2'), {
+    opacity: 1, duration: 0.05
+  }, 17.1);
+  masterTL.call(function() {
+    var el = document.querySelector('#stat-2 .stat-number');
+    if (el) el.classList.add('glitch-anim');
+    setTimeout(function() { if (el) el.classList.remove('glitch-anim'); }, 380);
+  }, [], 17.1);
+  masterTL.to(document.getElementById('sb-2'), {
+    width: '60px', duration: 0.8, ease: 'power3.out'
+  }, 17.5);
+  masterTL.call(function() { flash('', 0.12); }, [], 20.8);
+  masterTL.to(document.getElementById('stat-2'), { opacity: 0, duration: 0.1 }, 21.0);
+
+  // ── Stat 3: 0 vendor lock-in ──
+  masterTL.to(document.getElementById('stat-3'), {
+    opacity: 1, duration: 0.05
+  }, 21.1);
+  masterTL.call(function() {
+    var el = document.querySelector('#stat-3 .stat-number');
+    if (el) el.classList.add('glitch-anim');
+    setTimeout(function() { if (el) el.classList.remove('glitch-anim'); }, 380);
+  }, [], 21.1);
+  masterTL.to(document.getElementById('sb-3'), {
+    width: '60px', duration: 0.8, ease: 'power3.out'
+  }, 21.5);
+  masterTL.call(function() { flash('dark', 0.25); }, [], 24.8);
+  masterTL.call(hideScene, ['scene-stats'], 25.0);
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 4 — SERVICES  (25 → 33s)
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(showScene, ['scene-services'], 25.0);
+
+  // Each card slams in with stagger
+  masterTL.to(document.getElementById('svc-0'), {
+    opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.8)'
+  }, 25.2);
+  masterTL.to(document.getElementById('svc-1'), {
+    opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.8)'
+  }, 25.55);
+  masterTL.to(document.getElementById('svc-2'), {
+    opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.8)'
+  }, 25.9);
+  masterTL.to(document.getElementById('svc-3'), {
+    opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.8)'
+  }, 26.25);
+
+  // Flash accent fill on one cell for drama
+  masterTL.call(function() {
+    var el = document.getElementById('svc-0');
+    if (el) {
+      el.classList.add('lit');
+      setTimeout(function() { el.classList.remove('lit'); }, 700);
+    }
+  }, [], 27.2);
+  masterTL.call(function() {
+    var el = document.getElementById('svc-3');
+    if (el) {
+      el.classList.add('lit');
+      setTimeout(function() { el.classList.remove('lit'); }, 700);
+    }
+  }, [], 28.1);
+
+  masterTL.call(function() { flash('dark', 0.28); }, [], 32.6);
+  masterTL.call(hideScene, ['scene-services'], 32.85);
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 5 — TERMINAL  (32.85 → 42s)
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(showScene, ['scene-terminal'], 32.85);
+
+  masterTL.to(document.getElementById('term-header'), {
+    opacity: 1, duration: 0.4, ease: 'power2.out'
+  }, 33.1);
+
+  // First command block
+  masterTL.call(function() {
+    gsap.set(document.getElementById('tl-cmd1'), { opacity: 1 });
+    typeText('tc-1', 'zimdevs deploy --prod --zero-downtime', 1.6, function() {
+      var cur = document.getElementById('tcursor');
+      if (cur) cur.style.display = 'none';
+    });
+  }, [], 33.4);
+
+  masterTL.call(function() {
+    var el = document.getElementById('tl-out1');
+    if (el) { el.innerHTML = '<span class="t-out">→ Running pre-flight checks...</span>'; gsap.set(el, { opacity: 1 }); }
+  }, [], 35.2);
+
+  masterTL.call(function() {
+    var el = document.getElementById('tl-out2');
+    if (el) { el.innerHTML = '<span class="t-out">→ Health checks: passing (12/12)</span>'; gsap.set(el, { opacity: 1 }); }
+  }, [], 35.8);
+
+  masterTL.call(function() {
+    var el = document.getElementById('tl-out3');
+    if (el) { el.innerHTML = '<span class="t-out">→ Cutover: 0.0s downtime recorded</span>'; gsap.set(el, { opacity: 1 }); }
+  }, [], 36.4);
+
+  masterTL.call(function() {
+    var el = document.getElementById('tl-ok1');
+    if (el) { el.innerHTML = '<span class="t-ok">✓  production live — zimdevs.dev</span>'; gsap.set(el, { opacity: 1 }); }
+    flash('', 0.22);
+  }, [], 37.0);
+
+  // Second command block
+  masterTL.call(function() {
+    gsap.set(document.getElementById('tl-cmd2'), { opacity: 1 });
+    typeText('tc-2', 'zimdevs status --watch', 0.9);
+  }, [], 37.8);
+
+  masterTL.call(function() {
+    var el = document.getElementById('tl-out4');
+    if (el) { el.innerHTML = '<span class="t-out">→ Uptime: 99.98%  |  Response: 142ms</span>'; gsap.set(el, { opacity: 1 }); }
+  }, [], 38.9);
+
+  masterTL.call(function() {
+    var el = document.getElementById('tl-ok2');
+    if (el) { el.innerHTML = '<span class="t-ok">✓  All systems operational.</span>'; gsap.set(el, { opacity: 1 }); }
+    flash('accent', 0.2);
+  }, [], 39.5);
+
+  masterTL.call(function() { flash('dark', 0.3); }, [], 41.6);
+  masterTL.call(hideScene, ['scene-terminal'], 41.9);
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 6 — MANIFESTO  (41.9 → 50s)  inverted (light bg)
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(function() {
+    document.getElementById('corner-tl').style.color = 'rgba(10,10,10,0.2)';
+    document.getElementById('corner-tr').style.color = 'rgba(10,10,10,0.2)';
+  }, [], 41.9);
+  masterTL.call(showScene, ['scene-manifesto'], 41.9);
+
+  masterTL.to(document.getElementById('mf-super'), {
+    opacity: 1, y: 0, duration: 0.5, ease: 'power2.out'
+  }, 42.1);
+
+  masterTL.to(document.querySelector('#mfl-1 span'), {
+    y: '0%', duration: 0.7, ease: 'power4.out'
+  }, 42.4);
+  masterTL.to(document.querySelector('#mfl-2 span'), {
+    y: '0%', duration: 0.7, ease: 'power4.out'
+  }, 42.85);
+  masterTL.to(document.querySelector('#mfl-3 span'), {
+    y: '0%', duration: 0.7, ease: 'power4.out'
+  }, 43.3);
+  masterTL.to(document.querySelector('#mfl-4 span'), {
+    y: '0%', duration: 0.75, ease: 'back.out(1.4)'
+  }, 43.75);
+
+  masterTL.to(document.getElementById('mf-rule'), {
+    width: '80px', duration: 0.7, ease: 'power3.out'
+  }, 44.5);
+
+  masterTL.call(function() { flash('dark', 0.3); }, [], 49.0);
+  masterTL.call(function() {
+    document.getElementById('corner-tl').style.color = 'rgba(255,255,255,0.18)';
+    document.getElementById('corner-tr').style.color = 'rgba(255,255,255,0.18)';
+  }, [], 49.2);
+  masterTL.call(hideScene, ['scene-manifesto'], 49.2);
+
+  // ════════════════════════════════════════════════════════════
+  // SCENE 7 — OUTRO  (49.2 → 58s)
+  // ════════════════════════════════════════════════════════════
+  masterTL.call(showScene, ['scene-outro'], 49.2);
+
+  masterTL.to(document.getElementById('outro-logo'), {
+    opacity: 1, y: 0, duration: 0.85, ease: 'power3.out'
+  }, 49.5);
+
+  masterTL.to(document.getElementById('outro-tagline'), {
+    opacity: 1, duration: 0.7, ease: 'power2.out'
+  }, 50.1);
+
+  masterTL.to(document.getElementById('outro-divider'), {
+    opacity: 1, duration: 0.5
+  }, 50.8);
+
+  masterTL.to(document.getElementById('outro-links'), {
+    opacity: 1, y: 0, duration: 0.8, ease: 'power2.out'
+  }, 51.4);
+
+  masterTL.to(document.getElementById('outro-cta'), {
+    opacity: 1, duration: 0.6, ease: 'power2.out'
+  }, 52.4);
+
+  // Accent flash on CTA
+  masterTL.call(function() { flash('accent', 0.2); }, [], 52.42);
+
+  // Final fade to black
+  masterTL.call(function() {
+    gsap.to('#vf', { opacity: 0, duration: 1.4, ease: 'power2.inOut' });
+  }, [], 56.5);
+
+  // Show replay
+  masterTL.call(function() {
+    var btn = document.getElementById('replay-btn');
+    btn.style.opacity       = '1';
+    btn.style.pointerEvents = 'auto';
+    gsap.to(btn, { opacity: 1, duration: 0.5 });
+    gsap.to('#vf', { opacity: 1, duration: 0.4, ease: 'power2.out', delay: 0.3 });
+  }, [], 58.5);
+}
+
+// ─── REPLAY ────────────────────────────────────────────────────────────────────
+document.getElementById('replay-btn').addEventListener('click', function() {
+  var btn = this;
+  btn.style.opacity       = '0';
+  btn.style.pointerEvents = 'none';
+  gsap.set('#vf', { opacity: 1 });
+  buildTimeline();
+});
+
+// ─── RECORDER ──────────────────────────────────────────────────────────────────
+var VIDEO_DURATION_MS = 63000; // 63s — covers full timeline + fade
+
+document.getElementById('rec-btn').addEventListener('click', function() {
+  var btn = this;
+  btn.disabled    = true;
+  btn.textContent = 'Waiting for permission…';
+
+  // Preferred mime — try VP9 first, fall back to VP8, then default
+  var mimeType = '';
+  if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+    mimeType = 'video/webm;codecs=vp9';
+  } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+    mimeType = 'video/webm;codecs=vp8';
+  } else if (MediaRecorder.isTypeSupported('video/webm')) {
+    mimeType = 'video/webm';
+  }
+
+  var constraints = {
+    video: {
+      frameRate: { ideal: 60, max: 60 },
+      width:     { ideal: 1920 },
+      height:    { ideal: 1080 },
+    },
+    audio: false,
+    preferCurrentTab: true,   // Chrome 109+ hint
+  };
+
+  navigator.mediaDevices.getDisplayMedia(constraints)
+    .then(function(stream) {
+      // Hide overlay now that capture has started
+      var overlay = document.getElementById('record-overlay');
+      overlay.style.display = 'none';
+
+      // Show recording indicator
+      var indicator = document.getElementById('rec-indicator');
+      indicator.classList.add('active');
+
+      // Recording timer
+      var recStart = Date.now();
+      var timerEl  = document.getElementById('rec-timer');
+      var timerInterval = setInterval(function() {
+        var elapsed = Math.floor((Date.now() - recStart) / 1000);
+        var m = Math.floor(elapsed / 60);
+        var s = elapsed % 60;
+        if (timerEl) timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      }, 500);
+
+      // Set up MediaRecorder
+      var options = mimeType ? { mimeType: mimeType, videoBitsPerSecond: 8000000 } : { videoBitsPerSecond: 8000000 };
+      var recorder = new MediaRecorder(stream, options);
+      var chunks   = [];
+
+      recorder.ondataavailable = function(e) {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = function() {
+        clearInterval(timerInterval);
+        indicator.classList.remove('active');
+        stream.getTracks().forEach(function(t) { t.stop(); });
+
+        var blob     = new Blob(chunks, { type: mimeType || 'video/webm' });
+        var url      = URL.createObjectURL(blob);
+        var a        = document.createElement('a');
+        a.href       = url;
+        a.download   = 'zimdevs-product-video.webm';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+
+        // Show replay + convert note
+        var overlay2 = document.getElementById('record-overlay');
+        overlay2.querySelector('.rec-steps').innerHTML =
+          '<span style="color:#4ade80;font-size:1.1em">✓ Download complete — check your Downloads folder</span><br><br>' +
+          '<span>File: <strong>zimdevs-product-video.webm</strong></span><br>' +
+          '<span>Convert to MP4 free at <span class="accent">cloudconvert.com</span></span>';
+        overlay2.querySelector('#rec-btn').textContent = '⏺  Record Again';
+        overlay2.querySelector('#rec-btn').disabled    = false;
+        overlay2.style.display = 'flex';
+      };
+
+      // Start recording, collect data every second
+      recorder.start(1000);
+
+      // Kick off the animation immediately
+      buildTimeline();
+
+      // Auto-stop after full duration
+      setTimeout(function() {
+        if (recorder.state === 'recording') recorder.stop();
+      }, VIDEO_DURATION_MS);
+
+      // If user stops screen share early, stop cleanly
+      stream.getVideoTracks()[0].addEventListener('ended', function() {
+        if (recorder.state === 'recording') recorder.stop();
+        clearInterval(timerInterval);
+        indicator.classList.remove('active');
+      });
+    })
+    .catch(function(err) {
+      console.error('Screen capture error:', err);
+      btn.disabled    = false;
+      btn.textContent = '⏺  Start Recording';
+      if (err.name === 'NotAllowedError') {
+        alert('Permission denied. Please allow screen sharing and try again.');
+      } else {
+        alert('Could not start recording: ' + err.message);
+      }
+    });
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  // Don't auto-play on load — wait for user to click Record
+  // (so the animation is fresh when recording starts)
+});
+</script>
+</body>
+</html>
