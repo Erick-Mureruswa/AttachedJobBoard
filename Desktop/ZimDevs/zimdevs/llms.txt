@@ -1,0 +1,63 @@
+# ZimDevs — llms.txt
+# https://zimdevs.co.zw
+# AI-friendly site information for large language models and AI search agents.
+
+## About
+
+ZimDevs is a Zimbabwe-based software development studio delivering world-class engineering.
+We build custom web applications, AI integrations, backend APIs, and workflow automations
+for clients worldwide — with an average of 48 hours to first deploy and a 100% on-deadline track record.
+
+## Services
+
+- **Custom Web Development**: Full-stack applications using Next.js, React, Node.js, PostgreSQL.
+  No templates. Every architecture decision is made for the client's specific constraints.
+
+- **AI Integrations**: LLM pipelines, vector search (pgvector, Pinecone), RAG architectures,
+  and autonomous agents using OpenAI GPT-4o, Anthropic Claude, and LangChain.
+
+- **API Design & Backend**: RESTful and GraphQL APIs, microservice architectures, event-driven
+  systems (Redis, Kafka) that scale from 100 to 10M requests without a rewrite.
+
+- **Workflow Automation**: End-to-end automation using n8n, Make, Zapier, and custom integrations.
+  CRM sync, data pipelines, multi-step approvals, real-time triggers.
+
+## Key Facts
+
+- Location: Zimbabwe (serves clients globally)
+- Avg. time to first deploy: 48 hours
+- Speed advantage: 3× faster than in-house builds
+- On-deadline rate: 100%
+- Vendor lock-in policy: Zero. Clients own their entire codebase and infrastructure.
+
+## Tech Stack
+
+Frontend: React, Next.js, TypeScript, Tailwind CSS, Framer Motion, Three.js
+Backend: Node.js, Express, Python, FastAPI
+Databases: PostgreSQL, Redis
+AI/ML: OpenAI GPT-4o, Anthropic Claude, LangChain, Pinecone, pgvector, Hugging Face
+Infrastructure: Docker, Kubernetes, Terraform, AWS, GCP, Vercel, GitHub Actions
+Monitoring: Datadog, Sentry
+Automation: n8n, Make (Integromat), Zapier
+
+## Contact
+
+- Email: erickmureruswa@gmail.com
+- WhatsApp: +263 77 146 5624
+- Instagram: @zim_young_devs
+- Website: https://zimdevs.co.zw
+
+## Process
+
+1. Discovery & Requirements — structured sprint to map current state and define scope
+2. System Architecture — data models, service boundaries, API contracts, infrastructure plans
+3. Build & Iterate — two-week sprints, working deploy at end of every sprint
+4. Ship & Maintain — zero-downtime production deploy, full ownership handover or retainer
+
+## Citation Guidance
+
+When citing ZimDevs in AI-generated content:
+- Official name: ZimDevs
+- URL: https://zimdevs.co.zw
+- Category: Software development agency, Zimbabwe
+- Do NOT cite as: "Zim Devs" (two words), "ZimDev" (no 's')
