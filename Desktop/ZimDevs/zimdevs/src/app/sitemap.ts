@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllCitySlugs } from '@/lib/cities';
 import { getAllServiceSlugs } from '@/lib/services';
+import { getAllPostSlugs } from '@/lib/blog';
 
 const BASE_URL = 'https://zimdevs.co.zw';
 const LAST_MODIFIED = new Date('2026-06-06');
@@ -20,6 +21,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
+  const blogPosts: MetadataRoute.Sitemap = getAllPostSlugs().map((slug) => ({
+    url: `${BASE_URL}/blog/${slug}`,
+    lastModified: LAST_MODIFIED,
+    changeFrequency: 'never',
+    priority: 0.7,
+  }));
+
   return [
     {
       url: `${BASE_URL}/`,
@@ -27,7 +35,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 1,
     },
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
     ...servicePages,
     ...cityPages,
+    ...blogPosts,
   ];
 }
